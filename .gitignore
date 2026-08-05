@@ -1,0 +1,28 @@
+## Build
+bin/
+obj/
+out/
+
+## IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+## .NET
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Config local
+appsettings.Development.local.json
+appsettings.Local.json
+*.env
+
+## Logs
+logs/
+*.log
+
+## OS
+Thumbs.db
+.DS_Store
