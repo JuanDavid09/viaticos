@@ -45,30 +45,35 @@ Abrir `Viaticos.sln` en esta carpeta.
 
 ## Fase actual
 
-**Fase 1** completada — EF Core, repositorios, conexión PostgreSQL.
+**Fase 2** completada — casos de uso y API MVP.
 
-Siguiente: **Fase 2** — Application layer + API catálogos.
+Siguiente: **Fase 3** — Autenticación JWT.
 
-### Configuración BD
+### Endpoints MVP
 
-Editar `src/Viaticos.Api/appsettings.Development.json`:
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/health` | Estado BD |
+| GET | `/api/catalogos` | Monedas + categorías |
+| GET | `/api/legalizaciones` | Mis legalizaciones |
+| GET | `/api/legalizaciones/{id}` | Detalle |
+| POST | `/api/legalizaciones` | Crear borrador |
+| PUT | `/api/legalizaciones/{id}` | Actualizar borrador |
+| POST | `/api/legalizaciones/{id}/gastos` | Agregar gasto |
 
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Host=localhost;Port=5432;Database=viaticos;Username=postgres;Password=TU_PASSWORD"
-}
+### Usuario de desarrollo (MVP)
+
+Header opcional en todos los endpoints (excepto health):
+
+```http
+X-Dev-User-Email: empleado@empresa.com
 ```
 
-### Verificar conexión
+Usuarios seed: `empleado@empresa.com`, `jefe@empresa.com`, `nomina@empresa.com`, `admin@empresa.com`
+
+### Probar con Swagger
 
 ```powershell
 dotnet run --project src/Viaticos.Api
-# GET https://localhost:7xxx/api/health
-```
-
-### Test de integración con PostgreSQL
-
-```powershell
-$env:VIATICOS_INTEGRATION_TESTS = "1"
-dotnet test tests/Viaticos.Infrastructure.Tests
+# Abrir /swagger
 ```

@@ -28,6 +28,7 @@ public class Legalizacion : AggregateRoot
     public Guid? UpdatedBy { get; private set; }
     public DateTime? SubmittedAt { get; private set; }
     public DateTime? ClosedAt { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
     public IReadOnlyCollection<Gasto> Gastos => _gastos.AsReadOnly();
 
@@ -40,7 +41,8 @@ public class Legalizacion : AggregateRoot
         DateOnly fechaFin,
         Guid monedaId,
         decimal montoAnticipo,
-        Guid createdBy)
+        Guid createdBy,
+        string? destino = null)
     {
         if (fechaFin < fechaInicio)
             throw new DomainException("FECHAS_INVALIDAS", "La fecha fin debe ser mayor o igual a la fecha inicio.");
@@ -58,7 +60,8 @@ public class Legalizacion : AggregateRoot
             MonedaId = monedaId,
             MontoAnticipo = montoAnticipo,
             Estado = EstadoLegalizacion.Borrador,
-            CreatedBy = createdBy
+            CreatedBy = createdBy,
+            Destino = destino?.Trim()
         };
     }
 
@@ -76,6 +79,35 @@ public class Legalizacion : AggregateRoot
         var gasto = Gasto.Crear(Id, categoriaGastoId, fechaGasto, descripcion, monto, createdBy, (short)_gastos.Count, proveedor, numeroDocumento);
         _gastos.Add(gasto);
         return gasto;
+    }
+
+    public void Actualizar(
+        string motivo,
+        DateOnly fechaInicio,
+        DateOnly fechaFin,
+        Guid monedaId,
+        decimal montoAnticipo,
+        Guid updatedBy,
+        string? destino = null)
+    {
+        EnsureEditable();
+
+        if (fechaFin < fechaInicio)
+            throw new DomainException("FECHAS_INVALIDAS", "La fecha fin debe ser mayor o igual a la fecha inicio.");
+
+        if (montoAnticipo < 0)
+            throw new DomainException("ANTICIPO_INVALIDO", "El anticipo no puede ser negativo.");
+
+        if (string.IsNullOrWhiteSpace(motivo))
+            throw new DomainException("MOTIVO_REQUERIDO", "El motivo es obligatorio.");
+
+        Motivo = motivo.Trim();
+        FechaInicio = fechaInicio;
+        FechaFin = fechaFin;
+        MonedaId = monedaId;
+        MontoAnticipo = montoAnticipo;
+        Destino = destino?.Trim();
+        UpdatedBy = updatedBy;
     }
 
     public void EnviarValidacion(Guid usuarioId)

@@ -44,6 +44,6 @@ dotnet run --project src/Viaticos.Api
 
 ## Fase actual
 
-**Fase 1** — Persistencia EF Core + PostgreSQL completada.
+**Fase 2** — API MVP con catálogos y legalizaciones.
 
-Siguiente: **Fase 2** — Casos de uso y API de catálogos.
+Siguiente: **Fase 3** — Autenticación JWT.

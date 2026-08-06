@@ -40,24 +40,25 @@ Implementación incremental. Cada fase es funcional y desplegable.
 
 ---
 
-## Fase 2 — Application layer + API catálogos (actual)
+## Fase 2 — Application layer + API catálogos ✅
 
 **Objetivo:** Casos de uso core y primeros endpoints.
 
-| Tarea | Detalle |
-|-------|---------|
-| MediatR + FluentValidation | Pipeline behaviors |
-| Commands | Crear/actualizar legalización, agregar gasto |
-| Queries | Listar catálogos, obtener legalización, mis legalizaciones |
-| DTOs | Request/response models |
-| API | `CatalogosController`, `LegalizacionesController` (CRUD borrador) |
-| Swagger | Documentación OpenAPI |
+| Entregable | Estado |
+|------------|--------|
+| MediatR + FluentValidation | ✅ |
+| Commands (crear/actualizar legalización, agregar gasto) | ✅ |
+| Queries (catálogos, obtener, mis legalizaciones) | ✅ |
+| DTOs | ✅ |
+| `CatalogosController`, `LegalizacionesController` | ✅ |
+| Swagger | ✅ |
+| Usuario dev (`X-Dev-User-Email`) | ✅ |
 
 **Criterio de done:** Empleado puede crear legalización y agregar gastos vía API.
 
 ---
 
-## Fase 3 — Autenticación
+## Fase 3 — Autenticación (actual)
 
 **Objetivo:** Login y autorización por rol.
 

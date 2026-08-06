@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Viaticos.Application.Common.Interfaces;
+using Viaticos.Infrastructure.Identity;
 using Viaticos.Infrastructure.Persistence;
 using Viaticos.Infrastructure.Persistence.Repositories;
 
@@ -19,6 +20,10 @@ public static class DependencyInjection
             {
                 npgsql.MigrationsHistoryTable("__ef_migrations_history", "public");
             }));
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<DevCurrentUserService>();
+        services.AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<DevCurrentUserService>());
 
         services.AddScoped<ILegalizacionRepository, LegalizacionRepository>();
         services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();

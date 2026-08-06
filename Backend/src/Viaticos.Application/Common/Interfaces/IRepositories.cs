@@ -5,6 +5,7 @@ namespace Viaticos.Application.Common.Interfaces;
 public interface ILegalizacionRepository
 {
     Task<Legalizacion?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Legalizacion>> ListByEmpleadoAsync(Guid empleadoId, CancellationToken cancellationToken = default);
     Task AddAsync(Legalizacion legalizacion, CancellationToken cancellationToken = default);
     void Update(Legalizacion legalizacion);
 }

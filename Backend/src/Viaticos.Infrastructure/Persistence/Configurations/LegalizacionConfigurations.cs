@@ -31,8 +31,8 @@ internal class LegalizacionConfiguration : IEntityTypeConfiguration<Legalizacion
         builder.Property(l => l.UpdatedBy).HasColumnName("updated_by");
         builder.Property(l => l.SubmittedAt).HasColumnName("submitted_at");
         builder.Property(l => l.ClosedAt).HasColumnName("closed_at");
+        builder.Property(l => l.CreatedAt).HasColumnName("created_at");
 
-        builder.Property<DateTime>("CreatedAt").HasColumnName("created_at");
         builder.Property<DateTime>("UpdatedAt").HasColumnName("updated_at");
 
         builder.HasMany(l => l.Gastos)
