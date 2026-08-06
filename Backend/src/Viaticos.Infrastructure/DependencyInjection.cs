@@ -22,13 +22,15 @@ public static class DependencyInjection
             }));
 
         services.AddHttpContextAccessor();
-        services.AddScoped<DevCurrentUserService>();
-        services.AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<DevCurrentUserService>());
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         services.AddScoped<ILegalizacionRepository, LegalizacionRepository>();
         services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();
         services.AddScoped<ICatalogoRepository, CatalogoRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddJwtAuthentication(configuration);
 
         return services;
     }

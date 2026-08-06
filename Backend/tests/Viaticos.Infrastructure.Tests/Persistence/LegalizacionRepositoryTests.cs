@@ -79,7 +79,11 @@ public class LegalizacionRepositoryTests
                 .AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     ["ConnectionStrings:DefaultConnection"] =
-                        "Host=localhost;Port=5432;Database=viaticos;Username=postgres;Password=postgres"
+                        "Host=localhost;Port=5432;Database=viaticos;Username=postgres;Password=postgres",
+                    ["Jwt:Secret"] = "IntegrationTestSecretKeyMin32Characters!",
+                    ["Jwt:Issuer"] = "ViaticosApi",
+                    ["Jwt:Audience"] = "ViaticosClient",
+                    ["Jwt:ExpirationMinutes"] = "60"
                 })
                 .Build();
         }

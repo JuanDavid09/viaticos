@@ -58,23 +58,25 @@ Implementación incremental. Cada fase es funcional y desplegable.
 
 ---
 
-## Fase 3 — Autenticación (actual)
+## Fase 3 — Autenticación ✅
 
 **Objetivo:** Login y autorización por rol.
 
-| Tarea | Detalle |
-|-------|---------|
-| JWT Bearer | Generación y validación de tokens |
-| `ICurrentUserService` | Empleado autenticado en contexto |
-| `AuthController` | Login MVP (email + validación contra BD) |
-| Autorización | Policies por rol (`Empleado`, `Jefe`, `Nomina`, `Admin`) |
-| Middleware | Exception handling, ProblemDetails |
+| Entregable | Estado |
+|------------|--------|
+| JWT Bearer (generación + validación) | ✅ |
+| `ICurrentUserService` desde claims JWT | ✅ |
+| `AuthController` — login MVP por email | ✅ |
+| Policies por rol (`Empleado`, `Jefe`, `Nomina`, `Admin`) | ✅ |
+| `ExceptionHandlingMiddleware` | ✅ |
+| Swagger con Bearer JWT | ✅ |
+| Eliminado `X-Dev-User-Email` | ✅ |
 
-**Criterio de done:** Endpoints protegidos; cada rol ve solo lo permitido.
+**Criterio de done:** Endpoints protegidos; login retorna token usable en `Authorization: Bearer`.
 
 ---
 
-## Fase 4 — Documentos (MinIO + OCR)
+## Fase 4 — Documentos (MinIO + OCR) (actual)
 
 **Objetivo:** Upload de soportes y extracción OCR.
 
@@ -147,6 +149,7 @@ Fase 3 (auth) puede paralelizarse parcialmente con Fase 4, pero Fase 5 requiere 
 
 ### Fase 3
 - `Microsoft.AspNetCore.Authentication.JwtBearer`
+- `System.IdentityModel.Tokens.Jwt`
 
 ### Fase 4
 - `Minio`

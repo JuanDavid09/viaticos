@@ -45,35 +45,47 @@ Abrir `Viaticos.sln` en esta carpeta.
 
 ## Fase actual
 
-**Fase 2** completada — casos de uso y API MVP.
+**Fase 3** completada — autenticación JWT y autorización por rol.
 
-Siguiente: **Fase 3** — Autenticación JWT.
+Siguiente: **Fase 4** — Documentos (MinIO + OCR).
 
 ### Endpoints MVP
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/health` | Estado BD |
-| GET | `/api/catalogos` | Monedas + categorías |
-| GET | `/api/legalizaciones` | Mis legalizaciones |
-| GET | `/api/legalizaciones/{id}` | Detalle |
-| POST | `/api/legalizaciones` | Crear borrador |
-| PUT | `/api/legalizaciones/{id}` | Actualizar borrador |
-| POST | `/api/legalizaciones/{id}/gastos` | Agregar gasto |
+| Método | Ruta | Auth | Descripción |
+|--------|------|------|-------------|
+| GET | `/api/health` | Anónimo | Estado BD |
+| POST | `/api/auth/login` | Anónimo | Login MVP (email) |
+| GET | `/api/catalogos` | JWT | Monedas + categorías |
+| GET | `/api/legalizaciones` | JWT | Mis legalizaciones |
+| GET | `/api/legalizaciones/{id}` | JWT | Detalle |
+| POST | `/api/legalizaciones` | JWT | Crear borrador |
+| PUT | `/api/legalizaciones/{id}` | JWT | Actualizar borrador |
+| POST | `/api/legalizaciones/{id}/gastos` | JWT | Agregar gasto |
 
-### Usuario de desarrollo (MVP)
+### Autenticación (MVP)
 
-Header opcional en todos los endpoints (excepto health):
+1. Obtener token:
 
 ```http
-X-Dev-User-Email: empleado@empresa.com
+POST /api/auth/login
+Content-Type: application/json
+
+{ "email": "empleado@empresa.com" }
+```
+
+2. Usar en requests protegidos:
+
+```http
+Authorization: Bearer {accessToken}
 ```
 
 Usuarios seed: `empleado@empresa.com`, `jefe@empresa.com`, `nomina@empresa.com`, `admin@empresa.com`
+
+Configuración JWT en `src/Viaticos.Api/appsettings.json` (`Jwt:Secret`, `Issuer`, `Audience`, `ExpirationMinutes`).
 
 ### Probar con Swagger
 
 ```powershell
 dotnet run --project src/Viaticos.Api
-# Abrir /swagger
+# Abrir /swagger → Authorize con Bearer token
 ```

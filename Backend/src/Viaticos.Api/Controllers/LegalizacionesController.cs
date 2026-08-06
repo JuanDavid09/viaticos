@@ -1,10 +1,12 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Viaticos.Application.Legalizaciones.Commands;
 using Viaticos.Application.Legalizaciones.Queries;
 
 namespace Viaticos.Api.Controllers;
 
+[Authorize(Policy = Infrastructure.Identity.AuthPolicies.Empleado)]
 [Route("api/[controller]")]
 public class LegalizacionesController : ApiControllerBase
 {

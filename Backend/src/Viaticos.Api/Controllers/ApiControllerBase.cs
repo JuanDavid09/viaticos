@@ -28,6 +28,7 @@ public abstract class ApiControllerBase : ControllerBase
         {
             "NOT_FOUND" => NotFound(new { code, message }),
             "FORBIDDEN" => StatusCode(StatusCodes.Status403Forbidden, new { code, message }),
+            "INVALID_CREDENTIALS" or "UNAUTHORIZED" => Unauthorized(new { code, message }),
             "NO_EDITABLE" or "ESTADO_INVALIDO" => Conflict(new { code, message }),
             "VALIDATION_ERROR" => BadRequest(new { code, message }),
             _ => BadRequest(new { code, message })

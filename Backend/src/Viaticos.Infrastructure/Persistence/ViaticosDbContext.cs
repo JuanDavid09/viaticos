@@ -24,6 +24,14 @@ public class ViaticosDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ViaticosDbContext).Assembly);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var idProperty = entityType.FindProperty("Id");
+            if (idProperty is not null)
+                idProperty.SetColumnName("id");
+        }
+
         base.OnModelCreating(modelBuilder);
     }
 
