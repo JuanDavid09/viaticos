@@ -73,7 +73,7 @@ public class Legalizacion : AggregateRoot
     {
         EnsureEditable();
 
-        var gasto = Gasto.Crear(Id, categoriaGastoId, fechaGasto, descripcion, monto, createdBy, proveedor, numeroDocumento);
+        var gasto = Gasto.Crear(Id, categoriaGastoId, fechaGasto, descripcion, monto, createdBy, (short)_gastos.Count, proveedor, numeroDocumento);
         _gastos.Add(gasto);
         return gasto;
     }

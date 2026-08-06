@@ -44,6 +44,6 @@ dotnet run --project src/Viaticos.Api
 
 ## Fase actual
 
-**Fase 0** — Fundamentos: solution, arquitectura, entidades de dominio base.
+**Fase 1** — Persistencia EF Core + PostgreSQL completada.
 
-Siguiente: **Fase 1** — EF Core + persistencia PostgreSQL.
+Siguiente: **Fase 2** — Casos de uso y API de catálogos.

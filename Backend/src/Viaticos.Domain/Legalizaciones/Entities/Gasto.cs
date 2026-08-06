@@ -25,8 +25,9 @@ public class Gasto : Entity
         string descripcion,
         decimal monto,
         Guid createdBy,
-        string? proveedor,
-        string? numeroDocumento)
+        short orden,
+        string? proveedor = null,
+        string? numeroDocumento = null)
     {
         if (monto <= 0)
             throw new DomainException("MONTO_INVALIDO", "El monto debe ser mayor a cero.");
@@ -44,6 +45,7 @@ public class Gasto : Entity
             Monto = monto,
             Proveedor = proveedor,
             NumeroDocumento = numeroDocumento,
+            Orden = orden,
             CreatedBy = createdBy
         };
     }

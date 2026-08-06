@@ -4,7 +4,7 @@ Implementación incremental. Cada fase es funcional y desplegable.
 
 ---
 
-## Fase 0 — Fundamentos ✅ (actual)
+## Fase 0 — Fundamentos ✅
 
 **Objetivo:** Estructura del solution y documentación de arquitectura.
 
@@ -16,29 +16,31 @@ Implementación incremental. Cada fase es funcional y desplegable.
 | Enums de dominio alineados a BD | ✅ |
 | `.gitignore` | ✅ |
 
-**No incluye:** lógica de negocio, EF Core, endpoints.
-
 ---
 
-## Fase 1 — Dominio + Persistencia base
+## Fase 1 — Dominio + Persistencia base ✅
 
 **Objetivo:** Modelo de dominio y conexión a PostgreSQL.
 
-| Tarea | Detalle |
-|-------|---------|
-| Base classes | `Entity`, `AggregateRoot`, `DomainException` |
-| Entidades | `Legalizacion`, `Gasto`, `Empleado`, `Archivo`, catálogos |
-| Máquina de estados | Métodos de transición en `Legalizacion` |
-| EF Core | `ViaticosDbContext`, configurations, enums PostgreSQL |
-| Repositorios | `ILegalizacionRepository`, `IEmpleadoRepository`, `ICatalogoRepository` |
-| UnitOfWork | Transacciones |
-| Tests dominio | Transiciones de estado, invariantes |
+| Entregable | Estado |
+|------------|--------|
+| Base classes | ✅ |
+| Entidades de dominio | ✅ |
+| Máquina de estados | ✅ |
+| EF Core + `ViaticosDbContext` | ✅ |
+| Configurations por schema PG | ✅ |
+| Repositorios + UnitOfWork | ✅ |
+| Tests dominio (5) | ✅ |
+| Test integración (opcional con `VIATICOS_INTEGRATION_TESTS=1`) | ✅ |
+| Health endpoint `/api/health` | ✅ |
+
+**Nota:** El esquema se gestiona con scripts SQL en `database/` (database-first). EF mapea tablas existentes, no genera migraciones en MVP.
 
 **Criterio de done:** `dotnet test` pasa; se puede leer/escribir legalización en BD.
 
 ---
 
-## Fase 2 — Application layer + API catálogos
+## Fase 2 — Application layer + API catálogos (actual)
 
 **Objetivo:** Casos de uso core y primeros endpoints.
 

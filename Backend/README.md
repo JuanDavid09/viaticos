@@ -45,6 +45,30 @@ Abrir `Viaticos.sln` en esta carpeta.
 
 ## Fase actual
 
-**Fase 0** completada — dominio base y tests de workflow.
+**Fase 1** completada — EF Core, repositorios, conexión PostgreSQL.
 
-Siguiente: **Fase 1** — EF Core + PostgreSQL.
+Siguiente: **Fase 2** — Application layer + API catálogos.
+
+### Configuración BD
+
+Editar `src/Viaticos.Api/appsettings.Development.json`:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=viaticos;Username=postgres;Password=TU_PASSWORD"
+}
+```
+
+### Verificar conexión
+
+```powershell
+dotnet run --project src/Viaticos.Api
+# GET https://localhost:7xxx/api/health
+```
+
+### Test de integración con PostgreSQL
+
+```powershell
+$env:VIATICOS_INTEGRATION_TESTS = "1"
+dotnet test tests/Viaticos.Infrastructure.Tests
+```

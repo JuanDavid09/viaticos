@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{AD90F8B5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viaticos.Domain.Tests", "tests\Viaticos.Domain.Tests\Viaticos.Domain.Tests.csproj", "{7BCC34F8-1A35-4547-AF0C-849E7441A28F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Viaticos.Infrastructure.Tests", "tests\Viaticos.Infrastructure.Tests\Viaticos.Infrastructure.Tests.csproj", "{C5493B30-F99B-4548-B3A3-BF0FD61D9CED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{7BCC34F8-1A35-4547-AF0C-849E7441A28F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BCC34F8-1A35-4547-AF0C-849E7441A28F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BCC34F8-1A35-4547-AF0C-849E7441A28F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5493B30-F99B-4548-B3A3-BF0FD61D9CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5493B30-F99B-4548-B3A3-BF0FD61D9CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5493B30-F99B-4548-B3A3-BF0FD61D9CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5493B30-F99B-4548-B3A3-BF0FD61D9CED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D5A3D65A-137E-4309-87AE-60489821BB96} = {3080B25B-3BE1-4CFB-AC74-1D347B2E097B}
@@ -53,5 +59,6 @@ Global
 		{B61A2772-6038-49C0-A52F-A7E44174DA09} = {3080B25B-3BE1-4CFB-AC74-1D347B2E097B}
 		{FD5CA292-0D7A-450B-9253-695619E2B652} = {3080B25B-3BE1-4CFB-AC74-1D347B2E097B}
 		{7BCC34F8-1A35-4547-AF0C-849E7441A28F} = {AD90F8B5-024D-4746-B5A5-2A23FBD3B58C}
+		{C5493B30-F99B-4548-B3A3-BF0FD61D9CED} = {AD90F8B5-024D-4746-B5A5-2A23FBD3B58C}
 	EndGlobalSection
 EndGlobal
