@@ -56,4 +56,24 @@ public class Gasto : Entity
         ValidadoPor = usuarioId;
         ValidadoAt = DateTime.UtcNow;
     }
+
+    public void ActualizarDesdeOcr(string? proveedor, string? numeroDocumento, decimal? monto, DateOnly? fechaGasto)
+    {
+        if (proveedor is not null)
+            Proveedor = proveedor.Trim();
+
+        if (numeroDocumento is not null)
+            NumeroDocumento = numeroDocumento.Trim();
+
+        if (monto.HasValue)
+        {
+            if (monto.Value <= 0)
+                throw new DomainException("MONTO_INVALIDO", "El monto debe ser mayor a cero.");
+
+            Monto = monto.Value;
+        }
+
+        if (fechaGasto.HasValue)
+            FechaGasto = fechaGasto.Value;
+    }
 }

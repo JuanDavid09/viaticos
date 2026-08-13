@@ -81,6 +81,21 @@ public class Legalizacion : AggregateRoot
         return gasto;
     }
 
+    public void AplicarOcrAGasto(
+        Guid gastoId,
+        string? proveedor,
+        string? numeroDocumento,
+        decimal? monto,
+        DateOnly? fechaGasto)
+    {
+        EnsureEditable();
+
+        var gasto = _gastos.FirstOrDefault(g => g.Id == gastoId)
+            ?? throw new DomainException("GASTO_NOT_FOUND", "Gasto no encontrado en la legalización.");
+
+        gasto.ActualizarDesdeOcr(proveedor, numeroDocumento, monto, fechaGasto);
+    }
+
     public void Actualizar(
         string motivo,
         DateOnly fechaInicio,

@@ -19,6 +19,9 @@ appsettings.Development.local.json
 appsettings.Local.json
 *.env
 
+## Uploads locales (MinIO fallback dev)
+uploads/
+
 ## Logs
 logs/
 *.log

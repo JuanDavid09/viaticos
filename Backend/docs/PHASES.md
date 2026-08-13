@@ -76,23 +76,24 @@ Implementación incremental. Cada fase es funcional y desplegable.
 
 ---
 
-## Fase 4 — Documentos (MinIO + OCR) (actual)
+## Fase 4 — Documentos (MinIO + OCR) ✅
 
 **Objetivo:** Upload de soportes y extracción OCR.
 
-| Tarea | Detalle |
-|-------|---------|
-| MinIO | `IFileStorageService`, upload/download |
-| `SoportesController` | Multipart upload |
-| Azure DI | `IOcrService`, procesamiento async |
-| Commands | Subir soporte, procesar OCR, validar campos |
-| Aplicar OCR | Copiar campos validados al gasto |
+| Entregable | Estado |
+|------------|--------|
+| `IFileStorageService` + MinIO / almacenamiento local dev | ✅ |
+| `IOcrService` + Mock OCR / Azure Document Intelligence | ✅ |
+| `GastoSoporte` + repositorio documentos | ✅ |
+| Commands: subir, procesar OCR, validar, aplicar | ✅ |
+| `SoportesController` (multipart) | ✅ |
+| DTOs con soportes en detalle legalización | ✅ |
 
 **Criterio de done:** Empleado sube factura → OCR extrae datos → valida → gasto se completa.
 
 ---
 
-## Fase 5 — Workflow de aprobación
+## Fase 5 — Workflow de aprobación (actual)
 
 **Objetivo:** Flujo completo de estados.
 
@@ -153,7 +154,7 @@ Fase 3 (auth) puede paralelizarse parcialmente con Fase 4, pero Fase 5 requiere 
 
 ### Fase 4
 - `Minio`
-- `Azure.AI.FormRecognizer`
+- `Azure.AI.DocumentIntelligence`
 
 ### Fase 6
 - `Serilog.AspNetCore`

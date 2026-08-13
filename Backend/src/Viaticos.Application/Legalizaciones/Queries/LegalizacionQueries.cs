@@ -10,13 +10,16 @@ public record ObtenerLegalizacionQuery(Guid Id) : IRequest<Result<LegalizacionDe
 public class ObtenerLegalizacionQueryHandler : IRequestHandler<ObtenerLegalizacionQuery, Result<LegalizacionDetalleDto>>
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
+    private readonly IDocumentoRepository _documentoRepository;
     private readonly ICurrentUserService _currentUser;
 
     public ObtenerLegalizacionQueryHandler(
         ILegalizacionRepository legalizacionRepository,
+        IDocumentoRepository documentoRepository,
         ICurrentUserService currentUser)
     {
         _legalizacionRepository = legalizacionRepository;
+        _documentoRepository = documentoRepository;
         _currentUser = currentUser;
     }
 
@@ -29,7 +32,11 @@ public class ObtenerLegalizacionQueryHandler : IRequestHandler<ObtenerLegalizaci
         if (legalizacion.EmpleadoId != _currentUser.UserId && !_currentUser.IsInRole("Admin"))
             return Result<LegalizacionDetalleDto>.Failure("FORBIDDEN", "No tiene permiso para ver esta legalización.");
 
-        return Result<LegalizacionDetalleDto>.Success(LegalizacionMapper.ToDetalle(legalizacion));
+        var soportes = await _documentoRepository.ListSoportesByGastoIdsAsync(
+            legalizacion.Gastos.Select(g => g.Id),
+            cancellationToken);
+
+        return Result<LegalizacionDetalleDto>.Success(LegalizacionMapper.ToDetalle(legalizacion, soportes));
     }
 }
 

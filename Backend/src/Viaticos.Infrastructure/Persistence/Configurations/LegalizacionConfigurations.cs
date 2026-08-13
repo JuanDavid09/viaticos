@@ -93,3 +93,19 @@ internal class LegalizacionHistorialConfiguration : IEntityTypeConfiguration<Leg
         builder.Property(h => h.CreatedAt).HasColumnName("created_at");
     }
 }
+
+internal class GastoSoporteConfiguration : IEntityTypeConfiguration<GastoSoporte>
+{
+    public void Configure(EntityTypeBuilder<GastoSoporte> builder)
+    {
+        builder.ToTable("gasto_soporte", "viaticos");
+
+        builder.HasKey(s => s.Id);
+
+        builder.Property(s => s.GastoId).HasColumnName("gasto_id");
+        builder.Property(s => s.ArchivoId).HasColumnName("archivo_id");
+        builder.Property(s => s.EsPrincipal).HasColumnName("es_principal");
+        builder.Property(s => s.CreatedBy).HasColumnName("created_by");
+        builder.Property(s => s.CreatedAt).HasColumnName("created_at");
+    }
+}

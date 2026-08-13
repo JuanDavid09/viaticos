@@ -21,6 +21,14 @@ internal class LegalizacionRepository : ILegalizacionRepository
             .FirstOrDefaultAsync(l => l.Id == id, cancellationToken);
     }
 
+    public async Task<Legalizacion?> GetByGastoIdAsync(Guid gastoId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Legalizaciones
+            .Include(l => l.Gastos)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(l => l.Gastos.Any(g => g.Id == gastoId), cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Legalizacion>> ListByEmpleadoAsync(Guid empleadoId, CancellationToken cancellationToken = default)
     {
         return await _context.Legalizaciones

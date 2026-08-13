@@ -16,6 +16,7 @@ public class ViaticosDbContext : DbContext
     public DbSet<CategoriaGasto> CategoriasGasto => Set<CategoriaGasto>();
     public DbSet<Legalizacion> Legalizaciones => Set<Legalizacion>();
     public DbSet<Gasto> Gastos => Set<Gasto>();
+    public DbSet<GastoSoporte> GastosSoporte => Set<GastoSoporte>();
     public DbSet<LegalizacionHistorial> LegalizacionHistorial => Set<LegalizacionHistorial>();
     public DbSet<Archivo> Archivos => Set<Archivo>();
     public DbSet<OcrExtraccion> OcrExtracciones => Set<OcrExtraccion>();

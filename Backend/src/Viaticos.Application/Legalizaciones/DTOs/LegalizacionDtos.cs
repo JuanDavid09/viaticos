@@ -1,3 +1,5 @@
+using Viaticos.Application.Common.Interfaces;
+using Viaticos.Application.Documentos.DTOs;
 using Viaticos.Domain.Legalizaciones.Entities;
 
 namespace Viaticos.Application.Legalizaciones.DTOs;
@@ -17,7 +19,8 @@ public record GastoDto(
     string? NumeroDocumento,
     decimal Monto,
     bool Validado,
-    short Orden);
+    short Orden,
+    IReadOnlyList<GastoSoporteDto> Soportes);
 
 public record LegalizacionResumenDto(
     Guid Id,
@@ -57,7 +60,7 @@ public static class LegalizacionMapper
     public static CategoriaGastoDto ToDto(Domain.Core.Entities.CategoriaGasto categoria) =>
         new(categoria.Id, categoria.Codigo, categoria.Nombre, categoria.RequiereSoporte);
 
-    public static GastoDto ToDto(Gasto gasto) =>
+    public static GastoDto ToDto(Gasto gasto, IReadOnlyList<GastoSoporteDto> soportes) =>
         new(
             gasto.Id,
             gasto.CategoriaGastoId,
@@ -67,7 +70,8 @@ public static class LegalizacionMapper
             gasto.NumeroDocumento,
             gasto.Monto,
             gasto.Validado,
-            gasto.Orden);
+            gasto.Orden,
+            soportes);
 
     public static LegalizacionResumenDto ToResumen(Legalizacion legalizacion, DateTime createdAt) =>
         new(
@@ -83,8 +87,15 @@ public static class LegalizacionMapper
             legalizacion.TotalDevolucion,
             createdAt);
 
-    public static LegalizacionDetalleDto ToDetalle(Legalizacion legalizacion) =>
-        new(
+    public static LegalizacionDetalleDto ToDetalle(
+        Legalizacion legalizacion,
+        IReadOnlyList<GastoSoporteDetalle>? soportes = null)
+    {
+        var soportesPorGasto = (soportes ?? [])
+            .GroupBy(s => s.GastoId)
+            .ToDictionary(g => g.Key, g => g.Select(SoporteMapper.ToDto).ToList());
+
+        return new LegalizacionDetalleDto(
             legalizacion.Id,
             legalizacion.Numero,
             legalizacion.EmpleadoId,
@@ -99,5 +110,8 @@ public static class LegalizacionMapper
             legalizacion.TotalReembolso,
             legalizacion.TotalDevolucion,
             legalizacion.Observaciones,
-            legalizacion.Gastos.Select(ToDto).ToList());
+            legalizacion.Gastos
+                .Select(g => ToDto(g, soportesPorGasto.TryGetValue(g.Id, out var items) ? items : []))
+                .ToList());
+    }
 }

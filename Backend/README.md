@@ -45,9 +45,9 @@ Abrir `Viaticos.sln` en esta carpeta.
 
 ## Fase actual
 
-**Fase 3** completada — autenticación JWT y autorización por rol.
+**Fase 4** completada — upload de soportes, OCR y aplicación a gastos.
 
-Siguiente: **Fase 4** — Documentos (MinIO + OCR).
+Siguiente: **Fase 5** — Workflow de aprobación.
 
 ### Endpoints MVP
 
@@ -57,10 +57,15 @@ Siguiente: **Fase 4** — Documentos (MinIO + OCR).
 | POST | `/api/auth/login` | Anónimo | Login MVP (email) |
 | GET | `/api/catalogos` | JWT | Monedas + categorías |
 | GET | `/api/legalizaciones` | JWT | Mis legalizaciones |
-| GET | `/api/legalizaciones/{id}` | JWT | Detalle |
+| GET | `/api/legalizaciones/{id}` | JWT | Detalle (incluye soportes) |
 | POST | `/api/legalizaciones` | JWT | Crear borrador |
 | PUT | `/api/legalizaciones/{id}` | JWT | Actualizar borrador |
 | POST | `/api/legalizaciones/{id}/gastos` | JWT | Agregar gasto |
+| POST | `/api/soportes` | JWT | Subir soporte (multipart) |
+| GET | `/api/soportes/{id}/ocr` | JWT | Ver extracción OCR |
+| POST | `/api/soportes/{id}/ocr/procesar` | JWT | Ejecutar OCR |
+| PUT | `/api/soportes/{id}/ocr/campos` | JWT | Validar campos OCR |
+| POST | `/api/soportes/{id}/ocr/aplicar` | JWT | Aplicar OCR al gasto |
 
 ### Autenticación (MVP)
 
@@ -82,6 +87,20 @@ Authorization: Bearer {accessToken}
 Usuarios seed: `empleado@empresa.com`, `jefe@empresa.com`, `nomina@empresa.com`, `admin@empresa.com`
 
 Configuración JWT en `src/Viaticos.Api/appsettings.json` (`Jwt:Secret`, `Issuer`, `Audience`, `ExpirationMinutes`).
+
+### Documentos (Fase 4)
+
+Por defecto en desarrollo:
+- **Almacenamiento:** carpeta local `uploads/` (`Minio:UseLocalFallback: true`)
+- **OCR:** servicio simulado (`MockOcrService`) si `AzureOcr:Endpoint` está vacío
+
+Para MinIO real, configure `Minio:UseLocalFallback: false` y levante MinIO en `localhost:9000`.
+
+Flujo OCR:
+1. `POST /api/soportes` — subir factura/recibo (JPG, PNG, PDF, máx. 10 MB)
+2. `POST /api/soportes/{id}/ocr/procesar` — extraer campos
+3. `PUT /api/soportes/{id}/ocr/campos` — corregir/validar campos
+4. `POST /api/soportes/{id}/ocr/aplicar` — copiar al gasto
 
 ### Probar con Swagger
 
