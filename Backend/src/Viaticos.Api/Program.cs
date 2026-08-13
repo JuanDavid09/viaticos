@@ -1,57 +1,109 @@
+using Serilog;
+using Viaticos.Api.Configuration;
+using Viaticos.Api.Extensions;
 using Viaticos.Api.Middleware;
 using Viaticos.Application;
 using Viaticos.Infrastructure;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+try
 {
-    options.SwaggerDoc("v1", new() { Title = "Viáticos API", Version = "v1" });
+    var builder = WebApplication.CreateBuilder(args);
 
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-    {
-        Description = "JWT Bearer. Obtener token en POST /api/auth/login",
-        Name = "Authorization",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT"
-    });
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console());
 
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(options =>
     {
+        options.SwaggerDoc("v1", new() { Title = "Viáticos API", Version = "v1" });
+
+        options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
         {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            Description = "JWT Bearer. Obtener token en POST /api/auth/login",
+            Name = "Authorization",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT"
+        });
+
+        options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
     });
-});
 
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+    var corsSettings = builder.Configuration.GetSection(CorsSettings.SectionName).Get<CorsSettings>() ?? new CorsSettings();
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(CorsSettings.PolicyName, policy =>
+        {
+            if (corsSettings.AllowedOrigins.Length > 0)
+            {
+                policy.WithOrigins(corsSettings.AllowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            }
+            else
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            }
+        });
+    });
 
-var app = builder.Build();
+    builder.Services.AddApplication();
+    builder.Services.AddInfrastructure(builder.Configuration);
+    builder.Services.AddViaticosHealthChecks(builder.Configuration);
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+    var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSerilogRequestLogging();
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    var apiSettings = builder.Configuration.GetSection(ApiSettings.SectionName).Get<ApiSettings>() ?? new ApiSettings();
+    if (apiSettings.UseHttpsRedirection)
+        app.UseHttpsRedirection();
+
+    app.UseViaticosCors();
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.MapControllers();
+    app.MapViaticosHealthChecks();
+
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "La aplicación falló al iniciar.");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

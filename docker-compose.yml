@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: viaticos-postgres
+    environment:
+      POSTGRES_DB: viaticos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/001_extensions_and_schemas.sql:/docker-entrypoint-initdb.d/01_extensions_and_schemas.sql
+      - ./database/002_types.sql:/docker-entrypoint-initdb.d/02_types.sql
+      - ./database/003_core.sql:/docker-entrypoint-initdb.d/03_core.sql
+      - ./database/004_docs.sql:/docker-entrypoint-initdb.d/04_docs.sql
+      - ./database/005_viaticos.sql:/docker-entrypoint-initdb.d/05_viaticos.sql
+      - ./database/006_indexes.sql:/docker-entrypoint-initdb.d/06_indexes.sql
+      - ./database/007_functions_triggers.sql:/docker-entrypoint-initdb.d/07_functions_triggers.sql
+      - ./database/008_seed_data.sql:/docker-entrypoint-initdb.d/08_seed_data.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d viaticos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: viaticos-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  api:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: viaticos-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=viaticos;Username=postgres;Password=postgres
+      Jwt__Secret: ViaticosMvpDevSecretKey2026Min32Chars!
+      Jwt__Issuer: ViaticosApi
+      Jwt__Audience: ViaticosClient
+      Minio__Endpoint: minio:9000
+      Minio__AccessKey: minioadmin
+      Minio__SecretKey: minioadmin
+      Minio__Bucket: viaticos
+      Minio__UseSsl: "false"
+      Minio__UseLocalFallback: "false"
+      Api__UseHttpsRedirection: "false"
+      Cors__AllowedOrigins__0: http://localhost:5173
+      Cors__AllowedOrigins__1: http://localhost:3000
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
+  minio_data:

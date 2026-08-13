@@ -1,0 +1,9 @@
+**/.git
+**/.vs
+**/bin
+**/obj
+**/uploads
+**/*.user
+**/*.suo
+**/TestResults
+**/.dockerignore

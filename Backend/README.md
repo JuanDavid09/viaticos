@@ -45,15 +45,44 @@ Abrir `Viaticos.sln` en esta carpeta.
 
 ## Fase actual
 
-**Fase 5** completada — workflow de aprobación BORRADOR → CERRADA.
+**MVP Backend completado** (Fases 0–6).
 
-Siguiente: **Fase 6** — Pulido MVP (Docker, Serilog, CORS).
+## Docker (stack completo)
+
+Desde la raíz del repositorio:
+
+```powershell
+docker compose up --build
+```
+
+- API: http://localhost:8080/swagger
+- Health: http://localhost:8080/health
+- MinIO: http://localhost:9001
+
+## Desarrollo local
+
+```powershell
+dotnet build
+dotnet test
+dotnet run --project src/Viaticos.Api
+```
+
+## Observabilidad y configuración
+
+| Feature | Detalle |
+|---------|---------|
+| `/health` | PostgreSQL + MinIO (o almacenamiento local) |
+| `/api/health` | Check rápido de BD (legacy) |
+| Serilog | Logs estructurados en consola |
+| CORS | `Cors:AllowedOrigins` en appsettings |
+| HTTPS redirect | `Api:UseHttpsRedirection` (false en Docker) |
 
 ### Endpoints MVP
 
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
-| GET | `/api/health` | Anónimo | Estado BD |
+| GET | `/health` | Anónimo | Health check (BD + storage) |
+| GET | `/api/health` | Anónimo | Check rápido BD |
 | POST | `/api/auth/login` | Anónimo | Login MVP (email) |
 | GET | `/api/catalogos` | JWT | Monedas + categorías |
 | GET | `/api/legalizaciones` | JWT | Mis legalizaciones |

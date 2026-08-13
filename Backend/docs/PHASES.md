@@ -110,21 +110,23 @@ Implementación incremental. Cada fase es funcional y desplegable.
 
 ---
 
-## Fase 6 — Pulido MVP (actual)
+## Fase 6 — Pulido MVP ✅
 
 **Objetivo:** Production-ready básico.
 
-| Tarea | Detalle |
-|-------|---------|
-| Health checks | `/health` (BD + MinIO) |
-| Serilog | Logging estructurado |
-| CORS | Configuración frontend |
-| Docker Compose | API + PostgreSQL + MinIO local |
-| README | Instrucciones de ejecución |
+| Entregable | Estado |
+|------------|--------|
+| Health checks `/health` (PostgreSQL + MinIO) | ✅ |
+| Serilog (logging estructurado en consola) | ✅ |
+| CORS (orígenes frontend configurables) | ✅ |
+| Docker Compose (API + PostgreSQL + MinIO) | ✅ |
+| README con instrucciones Docker | ✅ |
 
 **Criterio de done:** Stack completo levanta con `docker compose up`.
 
 ---
+
+## MVP Backend — Completado ✅
 
 ## Diagrama de dependencias entre fases
 

@@ -25,6 +25,6 @@ public class HealthController : ControllerBase
         if (!canConnect)
             return StatusCode(StatusCodes.Status503ServiceUnavailable, new { status = "unhealthy", database = "disconnected" });
 
-        return Ok(new { status = "healthy", database = "connected" });
+        return Ok(new { status = "healthy", database = "connected", health = "/health" });
     }
 }
