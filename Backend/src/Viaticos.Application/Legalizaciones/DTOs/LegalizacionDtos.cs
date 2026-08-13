@@ -52,6 +52,14 @@ public record LegalizacionDetalleDto(
     string? Observaciones,
     IReadOnlyList<GastoDto> Gastos);
 
+public record LegalizacionHistorialDto(
+    Guid Id,
+    string? EstadoAnterior,
+    string EstadoNuevo,
+    Guid UsuarioId,
+    string? Comentario,
+    DateTime CreatedAt);
+
 public static class LegalizacionMapper
 {
     public static MonedaDto ToDto(Domain.Core.Entities.Moneda moneda) =>
@@ -114,4 +122,13 @@ public static class LegalizacionMapper
                 .Select(g => ToDto(g, soportesPorGasto.TryGetValue(g.Id, out var items) ? items : []))
                 .ToList());
     }
+
+    public static LegalizacionHistorialDto ToHistorialDto(LegalizacionHistorial entry) =>
+        new(
+            entry.Id,
+            entry.EstadoAnterior?.ToString(),
+            entry.EstadoNuevo.ToString(),
+            entry.UsuarioId,
+            entry.Comentario,
+            entry.CreatedAt);
 }

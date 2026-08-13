@@ -44,6 +44,15 @@ internal class LegalizacionConfiguration : IEntityTypeConfiguration<Legalizacion
             .HasField("_gastos")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasMany(l => l.Historial)
+            .WithOne()
+            .HasForeignKey(h => h.LegalizacionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(l => l.Historial)
+            .HasField("_historial")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasQueryFilter(l => l.DeletedAt == null);
     }
 }

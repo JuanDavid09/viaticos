@@ -7,6 +7,9 @@ public interface ILegalizacionRepository
     Task<Legalizacion?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Legalizacion?> GetByGastoIdAsync(Guid gastoId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Legalizacion>> ListByEmpleadoAsync(Guid empleadoId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Legalizacion>> ListPendientesAprobacionByJefeAsync(Guid jefeId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Legalizacion>> ListPendientesNominaAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<LegalizacionHistorial>> GetHistorialAsync(Guid legalizacionId, CancellationToken cancellationToken = default);
     Task AddAsync(Legalizacion legalizacion, CancellationToken cancellationToken = default);
     void Update(Legalizacion legalizacion);
 }

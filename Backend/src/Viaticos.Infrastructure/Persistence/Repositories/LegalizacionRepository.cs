@@ -37,6 +37,38 @@ internal class LegalizacionRepository : ILegalizacionRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Legalizacion>> ListPendientesAprobacionByJefeAsync(
+        Guid jefeId,
+        CancellationToken cancellationToken = default)
+    {
+        return await (
+            from legalizacion in _context.Legalizaciones
+            join empleado in _context.Empleados on legalizacion.EmpleadoId equals empleado.Id
+            where empleado.JefeId == jefeId
+                  && legalizacion.Estado == Domain.Legalizaciones.Enums.EstadoLegalizacion.PendienteAprobacion
+            orderby legalizacion.SubmittedAt
+            select legalizacion)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Legalizacion>> ListPendientesNominaAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Legalizaciones
+            .Where(l => l.Estado == Domain.Legalizaciones.Enums.EstadoLegalizacion.PendienteNomina)
+            .OrderBy(l => l.SubmittedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<LegalizacionHistorial>> GetHistorialAsync(
+        Guid legalizacionId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.LegalizacionHistorial
+            .Where(h => h.LegalizacionId == legalizacionId)
+            .OrderBy(h => h.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(Legalizacion legalizacion, CancellationToken cancellationToken = default)
     {
         await _context.Legalizaciones.AddAsync(legalizacion, cancellationToken);

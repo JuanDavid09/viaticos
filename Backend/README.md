@@ -45,9 +45,9 @@ Abrir `Viaticos.sln` en esta carpeta.
 
 ## Fase actual
 
-**Fase 4** completada — upload de soportes, OCR y aplicación a gastos.
+**Fase 5** completada — workflow de aprobación BORRADOR → CERRADA.
 
-Siguiente: **Fase 5** — Workflow de aprobación.
+Siguiente: **Fase 6** — Pulido MVP (Docker, Serilog, CORS).
 
 ### Endpoints MVP
 
@@ -57,12 +57,22 @@ Siguiente: **Fase 5** — Workflow de aprobación.
 | POST | `/api/auth/login` | Anónimo | Login MVP (email) |
 | GET | `/api/catalogos` | JWT | Monedas + categorías |
 | GET | `/api/legalizaciones` | JWT | Mis legalizaciones |
+| GET | `/api/bandejas/mis-legalizaciones` | JWT | Bandeja empleado |
+| GET | `/api/bandejas/pendientes-aprobacion` | Jefe | Bandeja jefe |
+| GET | `/api/bandejas/pendientes-nomina` | Nómina | Bandeja nómina |
 | GET | `/api/legalizaciones/{id}` | JWT | Detalle (incluye soportes) |
+| GET | `/api/legalizaciones/{id}/historial` | JWT | Historial de estados |
 | POST | `/api/legalizaciones` | JWT | Crear borrador |
 | PUT | `/api/legalizaciones/{id}` | JWT | Actualizar borrador |
 | POST | `/api/legalizaciones/{id}/gastos` | JWT | Agregar gasto |
+| POST | `/api/legalizaciones/{id}/enviar-validacion` | JWT | BORRADOR → PENDIENTE_VALIDACION |
+| POST | `/api/legalizaciones/{id}/enviar-aprobacion` | JWT | → PENDIENTE_APROBACION |
+| POST | `/api/legalizaciones/{id}/aprobar` | Jefe | → APROBADA |
+| POST | `/api/legalizaciones/{id}/rechazar` | Jefe | → RECHAZADA |
+| POST | `/api/legalizaciones/{id}/reabrir` | JWT | RECHAZADA → BORRADOR |
+| POST | `/api/legalizaciones/{id}/enviar-nomina` | JWT | APROBADA → PENDIENTE_NOMINA |
+| POST | `/api/legalizaciones/{id}/cerrar` | Nómina | → CERRADA |
 | POST | `/api/soportes` | JWT | Subir soporte (multipart) |
-| GET | `/api/soportes/{id}/ocr` | JWT | Ver extracción OCR |
 | POST | `/api/soportes/{id}/ocr/procesar` | JWT | Ejecutar OCR |
 | PUT | `/api/soportes/{id}/ocr/campos` | JWT | Validar campos OCR |
 | POST | `/api/soportes/{id}/ocr/aplicar` | JWT | Aplicar OCR al gasto |
@@ -101,6 +111,19 @@ Flujo OCR:
 2. `POST /api/soportes/{id}/ocr/procesar` — extraer campos
 3. `PUT /api/soportes/{id}/ocr/campos` — corregir/validar campos
 4. `POST /api/soportes/{id}/ocr/aplicar` — copiar al gasto
+
+### Workflow (Fase 5)
+
+Usuarios seed: `empleado@empresa.com`, `jefe@empresa.com`, `nomina@empresa.com`
+
+```
+BORRADOR → enviar-validacion → PENDIENTE_VALIDACION
+         → enviar-aprobacion → PENDIENTE_APROBACION
+         → aprobar (jefe)    → APROBADA
+         → rechazar (jefe)   → RECHAZADA → reabrir → BORRADOR
+         → enviar-nomina     → PENDIENTE_NOMINA
+         → cerrar (nómina)   → CERRADA
+```
 
 ### Probar con Swagger
 

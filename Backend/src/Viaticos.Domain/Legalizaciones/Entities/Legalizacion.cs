@@ -9,6 +9,7 @@ using Viaticos.Domain.Legalizaciones.Enums;
 public class Legalizacion : AggregateRoot
 {
     private readonly List<Gasto> _gastos = [];
+    private readonly List<LegalizacionHistorial> _historial = [];
 
     public string Numero { get; private set; } = string.Empty;
     public Guid EmpleadoId { get; private set; }
@@ -31,6 +32,7 @@ public class Legalizacion : AggregateRoot
     public DateTime CreatedAt { get; private set; }
 
     public IReadOnlyCollection<Gasto> Gastos => _gastos.AsReadOnly();
+    public IReadOnlyCollection<LegalizacionHistorial> Historial => _historial.AsReadOnly();
 
     private Legalizacion() { }
 
@@ -153,8 +155,8 @@ public class Legalizacion : AggregateRoot
         if (string.IsNullOrWhiteSpace(comentario))
             throw new DomainException("COMENTARIO_REQUERIDO", "Debe indicar el motivo del rechazo.");
 
-        Observaciones = comentario;
-        Transicionar(EstadoLegalizacion.Rechazada, aprobadorId);
+        Observaciones = comentario.Trim();
+        Transicionar(EstadoLegalizacion.Rechazada, aprobadorId, comentario);
     }
 
     public void EnviarNomina(Guid usuarioId)
@@ -188,8 +190,9 @@ public class Legalizacion : AggregateRoot
             throw new DomainException("ESTADO_INVALIDO", $"Operación no permitida en estado {Estado}. Se esperaba {esperado}.");
     }
 
-    private void Transicionar(EstadoLegalizacion nuevoEstado, Guid usuarioId)
+    private void Transicionar(EstadoLegalizacion nuevoEstado, Guid usuarioId, string? comentario = null)
     {
+        _historial.Add(LegalizacionHistorial.Crear(Id, Estado, nuevoEstado, usuarioId, comentario));
         Estado = nuevoEstado;
         UpdatedBy = usuarioId;
     }

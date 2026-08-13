@@ -12,4 +12,22 @@ public class LegalizacionHistorial : Entity
     public DateTime CreatedAt { get; private set; }
 
     private LegalizacionHistorial() { }
+
+    public static LegalizacionHistorial Crear(
+        Guid legalizacionId,
+        EstadoLegalizacion? estadoAnterior,
+        EstadoLegalizacion estadoNuevo,
+        Guid usuarioId,
+        string? comentario = null)
+    {
+        return new LegalizacionHistorial
+        {
+            Id = Guid.NewGuid(),
+            LegalizacionId = legalizacionId,
+            EstadoAnterior = estadoAnterior,
+            EstadoNuevo = estadoNuevo,
+            UsuarioId = usuarioId,
+            Comentario = comentario?.Trim()
+        };
+    }
 }

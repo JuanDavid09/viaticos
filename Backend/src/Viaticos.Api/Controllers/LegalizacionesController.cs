@@ -83,6 +83,68 @@ public class LegalizacionesController : ApiControllerBase
         var result = await _mediator.Send(command, cancellationToken);
         return FromResult(result);
     }
+
+    [HttpGet("{id:guid}/historial")]
+    public async Task<IActionResult> ObtenerHistorial(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ObtenerHistorialQuery(id), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPost("{id:guid}/enviar-validacion")]
+    public async Task<IActionResult> EnviarValidacion(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new EnviarValidacionCommand(id), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPost("{id:guid}/enviar-aprobacion")]
+    public async Task<IActionResult> EnviarAprobacion(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new EnviarAprobacionCommand(id), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPost("{id:guid}/aprobar")]
+    [Authorize(Policy = Infrastructure.Identity.AuthPolicies.Jefe)]
+    public async Task<IActionResult> Aprobar(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new AprobarLegalizacionCommand(id), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPost("{id:guid}/rechazar")]
+    [Authorize(Policy = Infrastructure.Identity.AuthPolicies.Jefe)]
+    public async Task<IActionResult> Rechazar(
+        Guid id,
+        [FromBody] RechazarLegalizacionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new RechazarLegalizacionCommand(id, request.Comentario), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPost("{id:guid}/reabrir")]
+    public async Task<IActionResult> Reabrir(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ReabrirLegalizacionCommand(id), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPost("{id:guid}/enviar-nomina")]
+    public async Task<IActionResult> EnviarNomina(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new EnviarNominaCommand(id), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPost("{id:guid}/cerrar")]
+    [Authorize(Policy = Infrastructure.Identity.AuthPolicies.Nomina)]
+    public async Task<IActionResult> Cerrar(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new CerrarLegalizacionCommand(id), cancellationToken);
+        return FromResult(result);
+    }
 }
 
 public record CrearLegalizacionRequest(
@@ -108,3 +170,5 @@ public record AgregarGastoRequest(
     decimal Monto,
     string? Proveedor,
     string? NumeroDocumento);
+
+public record RechazarLegalizacionRequest(string Comentario);

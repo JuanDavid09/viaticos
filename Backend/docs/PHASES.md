@@ -93,23 +93,24 @@ Implementación incremental. Cada fase es funcional y desplegable.
 
 ---
 
-## Fase 5 — Workflow de aprobación (actual)
+## Fase 5 — Workflow de aprobación ✅
 
 **Objetivo:** Flujo completo de estados.
 
-| Tarea | Detalle |
-|-------|---------|
-| Commands workflow | Enviar, aprobar, rechazar, validar nómina, cerrar |
-| `ILegalizacionWorkflowService` | Validar permisos jefe/empleado |
-| Historial | Registrar comentarios en rechazo |
-| Bandejas | Queries pendientes jefe y nómina |
-| `BandejasController` | Endpoints de bandejas |
+| Entregable | Estado |
+|------------|--------|
+| Commands workflow (enviar, aprobar, rechazar, reabrir, nomina, cerrar) | ✅ |
+| `ILegalizacionWorkflowService` (propietario + jefe) | ✅ |
+| Historial en transiciones de estado | ✅ |
+| Bandejas jefe y nómina | ✅ |
+| `BandejasController` | ✅ |
+| `GET /api/legalizaciones/{id}/historial` | ✅ |
 
 **Criterio de done:** Flujo completo BORRADOR → CERRADA funcional.
 
 ---
 
-## Fase 6 — Pulido MVP
+## Fase 6 — Pulido MVP (actual)
 
 **Objetivo:** Production-ready básico.
 
