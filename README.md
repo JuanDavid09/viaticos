@@ -6,7 +6,7 @@ Plataforma interna de gestión y legalización de viáticos — **MVP Backend co
 
 | Capa | Tecnología |
 |------|------------|
-| Frontend | React + TypeScript *(pendiente — carpeta `Frontend/`)* |
+| Frontend | React + TypeScript *(Fase 0 — fundación visual)* |
 | Backend | ASP.NET Core 8 — Clean Architecture + DDD |
 | Base de datos | PostgreSQL 15+ |
 | Storage | MinIO (Docker) / carpeta local (dev) |
@@ -17,7 +17,7 @@ Plataforma interna de gestión y legalización de viáticos — **MVP Backend co
 ```
 Viaticos/
 ├── Backend/           # API .NET Core (solution, src, tests, docs)
-├── Frontend/          # React + TypeScript (pendiente)
+├── Frontend/          # SPA React + TypeScript (fases)
 ├── database/          # Scripts SQL MVP (compartido)
 ├── docker-compose.yml # Stack MVP: API + PostgreSQL + MinIO
 └── README.md
@@ -73,9 +73,11 @@ Ajuste `ConnectionStrings:DefaultConnection` en `Backend/src/Viaticos.Api/appset
 - [Backend — Plan de fases](Backend/docs/PHASES.md)
 - [Base de datos](database/README.md)
 - [Backend — README](Backend/README.md)
+- [Frontend — Fases](Frontend/docs/PHASES.md)
+- [Frontend — README](Frontend/README.md)
 
 ## Estado del MVP
 
 **Backend MVP completado** (Fases 0–6): auth JWT, legalizaciones, workflow, soportes/OCR, Docker.
 
-Siguiente: **Frontend** React + TypeScript.
+Siguiente: **Frontend** React + TypeScript (Fase 0 lista para revisión).
