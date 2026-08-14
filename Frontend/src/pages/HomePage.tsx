@@ -1,20 +1,25 @@
 import { FileText, Inbox, ShieldCheck } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
+import { useAuth } from "@/features/auth/AuthContext";
+import { getRoleLabel } from "@/features/auth/roleUtils";
 
 export function HomePage() {
+  const { session } = useAuth();
+
   return (
     <>
       <Topbar title="Panel inicial" kicker="Viáticos MVP" />
       <main className="content">
         <div className="phase-banner">
           <div>
-            <strong>Fase 0 lista para revisión</strong>
+            <strong>Fase 1 — Sesión activa</strong>
             <p className="page-lead" style={{ marginBottom: 0 }}>
-              Esta pantalla define la identidad visual y la estructura. El login, las
-              legalizaciones y las bandejas se conectarán al API en las siguientes fases.
+              {session
+                ? `Bienvenido, ${session.nombreCompleto}. Tu rol es ${getRoleLabel(session.rol).toLowerCase()} y el menú lateral refleja los módulos disponibles.`
+                : "Cargando sesión…"}
             </p>
           </div>
-          <span className="badge">Sin backend todavía</span>
+          <span className="badge">Conectado al API</span>
         </div>
 
         <p className="page-lead">

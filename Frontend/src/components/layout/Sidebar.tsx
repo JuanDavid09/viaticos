@@ -1,16 +1,20 @@
 import { NavLink } from "react-router-dom";
 import { FileText, FolderOpen, Home, Inbox } from "lucide-react";
-import { navItems } from "@/app/routes";
+import { getNavItemsForRole } from "@/app/routes";
+import { useAuth } from "@/features/auth/AuthContext";
 import { env } from "@/config/env";
 
-const icons = {
+const icons: Record<string, typeof Home> = {
   "/": Home,
   "/legalizaciones": FileText,
   "/bandejas": Inbox,
   "/soportes": FolderOpen,
-} as const;
+};
 
 export function Sidebar() {
+  const { session } = useAuth();
+  const visibleItems = session ? getNavItemsForRole(session.rol) : [];
+
   return (
     <aside className="sidebar">
       <div className="brand">
@@ -23,8 +27,8 @@ export function Sidebar() {
 
       <nav className="nav-group" aria-label="Principal">
         <div className="nav-label">Navegación</div>
-        {navItems.map((item) => {
-          const Icon = icons[item.to];
+        {visibleItems.map((item) => {
+          const Icon = icons[item.to] ?? Home;
           return (
             <NavLink
               key={item.to}
@@ -40,7 +44,7 @@ export function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        Fase 0 — Fundación visual
+        Fase 1 — Autenticación
         {env.apiBaseUrl ? ` · API ${env.apiBaseUrl}` : " · API vía proxy Vite"}
       </div>
     </aside>

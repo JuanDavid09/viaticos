@@ -21,23 +21,24 @@ Implementación incremental. Cada fase se detiene para revisión visual y de có
 
 ---
 
-## Fase 1 — Autenticación (siguiente)
+## Fase 1 — Autenticación ✅
 
 **Objetivo:** Login real y sesión por rol.
 
-| Tarea | Detalle |
-|-------|---------|
-| Cliente HTTP | `fetch` tipado contra `/api` |
-| Login | `POST /api/auth/login` |
-| Sesión | Token JWT, usuario y rol |
-| Rutas protegidas | Redirección a login |
-| Navegación por rol | Empleado / Jefe / Nómina / Admin |
+| Entregable | Estado |
+|------------|--------|
+| Cliente HTTP tipado | ✅ |
+| `POST /api/auth/login` | ✅ |
+| Sesión JWT en localStorage | ✅ |
+| Rutas protegidas | ✅ |
+| Navegación por rol | ✅ |
+| Topbar con usuario y logout | ✅ |
 
 **Criterio de done:** Un usuario seed entra y ve el shell autenticado.
 
 ---
 
-## Fase 2 — Legalizaciones del empleado
+## Fase 2 — Legalizaciones del empleado (siguiente)
 
 **Objetivo:** Flujo diario del empleado.
 
