@@ -9,6 +9,8 @@ namespace Viaticos.Infrastructure.Identity;
 
 public class JwtTokenService : IJwtTokenService
 {
+    public const string MustChangePasswordClaim = "must_change_password";
+
     private readonly JwtSettings _settings;
 
     public JwtTokenService(IOptions<JwtSettings> settings)
@@ -16,7 +18,12 @@ public class JwtTokenService : IJwtTokenService
         _settings = settings.Value;
     }
 
-    public (string Token, DateTime ExpiresAt) GenerateToken(Guid userId, string email, string rol, string nombre)
+    public (string Token, DateTime ExpiresAt) GenerateToken(
+        Guid userId,
+        string email,
+        string rol,
+        string nombre,
+        bool mustChangePassword)
     {
         var expiresAt = DateTime.UtcNow.AddMinutes(_settings.ExpirationMinutes);
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Secret));
@@ -27,7 +34,8 @@ public class JwtTokenService : IJwtTokenService
             new(ClaimTypes.NameIdentifier, userId.ToString()),
             new(ClaimTypes.Email, email),
             new(ClaimTypes.Name, nombre),
-            new(ClaimTypes.Role, rol)
+            new(ClaimTypes.Role, rol),
+            new(MustChangePasswordClaim, mustChangePassword ? "true" : "false"),
         };
 
         var token = new JwtSecurityToken(

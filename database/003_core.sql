@@ -30,6 +30,8 @@ CREATE TABLE core.empleado (
     rol                 core.rol_enum NOT NULL DEFAULT 'EMPLEADO',
     jefe_id             UUID REFERENCES core.empleado(id),
     auth_subject_id     VARCHAR(255),
+    password_hash       VARCHAR(255),
+    must_change_password BOOLEAN NOT NULL DEFAULT FALSE,
     activo              BOOLEAN NOT NULL DEFAULT TRUE,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -42,3 +44,5 @@ COMMENT ON TABLE core.categoria_gasto IS 'Tipos de gasto viáticos';
 COMMENT ON TABLE core.empleado IS 'Usuarios del sistema con rol y jefe directo';
 COMMENT ON COLUMN core.empleado.jefe_id IS 'Jefe aprobador para el flujo de viáticos';
 COMMENT ON COLUMN core.empleado.auth_subject_id IS 'ID externo SSO (Azure AD / OIDC) — futuro';
+COMMENT ON COLUMN core.empleado.password_hash IS 'Hash de contraseña (ASP.NET Identity PasswordHasher v3)';
+COMMENT ON COLUMN core.empleado.must_change_password IS 'Obliga cambio de contraseña en el próximo acceso';

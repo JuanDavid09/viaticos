@@ -23,18 +23,22 @@ Implementación incremental. Cada fase se detiene para revisión visual y de có
 
 ## Fase 1 — Autenticación ✅
 
-**Objetivo:** Login real y sesión por rol.
+**Objetivo:** Login real, sesión por rol y contraseñas.
 
 | Entregable | Estado |
 |------------|--------|
 | Cliente HTTP tipado | ✅ |
-| `POST /api/auth/login` | ✅ |
+| Login email + contraseña | ✅ |
+| Cambio obligatorio de clave | ✅ |
 | Sesión JWT en localStorage | ✅ |
 | Rutas protegidas | ✅ |
 | Navegación por rol | ✅ |
+| Gestión de usuarios (Admin) | ✅ |
 | Topbar con usuario y logout | ✅ |
 
-**Criterio de done:** Un usuario seed entra y ve el shell autenticado.
+**Criterio de done:** Admin crea usuarios; empleado cambia clave en primer ingreso.
+
+**Contraseñas demo:** Admin `Admin123!` · demás usuarios `Cambiar123!`
 
 ---
 

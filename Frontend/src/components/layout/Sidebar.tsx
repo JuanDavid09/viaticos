@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { FileText, FolderOpen, Home, Inbox } from "lucide-react";
+import { FileText, FolderOpen, Home, Inbox, Users } from "lucide-react";
 import { getNavItemsForRole } from "@/app/routes";
 import { useAuth } from "@/features/auth/AuthContext";
 import { env } from "@/config/env";
@@ -9,6 +9,7 @@ const icons: Record<string, typeof Home> = {
   "/legalizaciones": FileText,
   "/bandejas": Inbox,
   "/soportes": FolderOpen,
+  "/usuarios": Users,
 };
 
 export function Sidebar() {
@@ -44,7 +45,7 @@ export function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        Fase 1 — Autenticación
+        Fase 1 — Autenticación con contraseña
         {env.apiBaseUrl ? ` · API ${env.apiBaseUrl}` : " · API vía proxy Vite"}
       </div>
     </aside>

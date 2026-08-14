@@ -6,16 +6,19 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { login as loginRequest } from "@/api/auth";
+import { changePassword as changePasswordRequest, login as loginRequest } from "@/api/auth";
 import { clearSession, loadSession, saveSession } from "@/lib/authStorage";
-import type { AuthSession, UserRole } from "@/types/auth";
+import type { AuthSession, ChangePasswordRequest, UserRole } from "@/types/auth";
 import { hasAnyRole } from "@/features/auth/roleUtils";
 
 type AuthContextValue = {
   session: AuthSession | null;
   isAuthenticated: boolean;
   isBootstrapping: boolean;
-  login: (email: string) => Promise<void>;
+  mustChangePassword: boolean;
+  login: (email: string, password: string) => Promise<AuthSession>;
+  changePassword: (request: ChangePasswordRequest) => Promise<void>;
+  applySession: (session: AuthSession) => void;
   logout: () => void;
   hasRole: (...roles: UserRole[]) => boolean;
 };
@@ -30,11 +33,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<AuthSession | null>(() => loadSession());
   const [isBootstrapping] = useState(false);
 
-  const login = useCallback(async (email: string) => {
-    const nextSession = await loginRequest({ email: email.trim() });
+  const applySession = useCallback((nextSession: AuthSession) => {
     saveSession(nextSession);
     setSession(nextSession);
   }, []);
+
+  const login = useCallback(async (email: string, password: string) => {
+    const nextSession = await loginRequest({ email: email.trim(), password });
+    applySession(nextSession);
+    return nextSession;
+  }, [applySession]);
+
+  const changePassword = useCallback(
+    async (request: ChangePasswordRequest) => {
+      const nextSession = await changePasswordRequest(request);
+      applySession(nextSession);
+    },
+    [applySession],
+  );
 
   const logout = useCallback(() => {
     clearSession();
@@ -54,11 +70,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       session,
       isAuthenticated: session !== null,
       isBootstrapping,
+      mustChangePassword: session?.mustChangePassword ?? false,
       login,
+      changePassword,
+      applySession,
       logout,
       hasRole,
     }),
-    [session, isBootstrapping, login, logout, hasRole],
+    [session, isBootstrapping, login, changePassword, applySession, logout, hasRole],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

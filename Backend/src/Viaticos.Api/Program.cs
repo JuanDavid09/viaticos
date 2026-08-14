@@ -93,6 +93,7 @@ try
     app.UseViaticosCors();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseMiddleware<MustChangePasswordMiddleware>();
     app.MapControllers();
     app.MapViaticosHealthChecks();
 

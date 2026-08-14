@@ -15,7 +15,10 @@ export function loadSession(): AuthSession | null {
       return null;
     }
 
-    return session;
+    return {
+      ...session,
+      mustChangePassword: session.mustChangePassword ?? false,
+    };
   } catch {
     localStorage.removeItem(AUTH_STORAGE_KEY);
     return null;

@@ -10,6 +10,7 @@ export function LoginPage() {
   const location = useLocation();
   const { login } = useAuth();
   const [email, setEmail] = useState("empleado@empresa.com");
+  const [password, setPassword] = useState("Cambiar123!");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -22,8 +23,11 @@ export function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login(email);
-      navigate(redirectTo, { replace: true });
+      const session = await login(email, password);
+      navigate(
+        session.mustChangePassword ? appRoutes.cambiarClave : redirectTo,
+        { replace: true },
+      );
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -35,14 +39,19 @@ export function LoginPage() {
     }
   }
 
+  function fillDemoUser(userEmail: string, demoPassword: string) {
+    setEmail(userEmail);
+    setPassword(demoPassword);
+  }
+
   return (
     <div className="login-screen">
       <section className="login-panel">
         <p className="page-kicker">Acceso interno</p>
         <h1 className="page-title">Legalización de viáticos</h1>
         <p className="page-lead">
-          Ingresa con tu correo corporativo. El sistema validará tu usuario y te asignará el
-          menú según tu rol.
+          Ingresa con tu correo y contraseña. Si es tu primer acceso, el sistema te pedirá
+          definir una clave personal.
         </p>
 
         <form className="login-form" onSubmit={handleSubmit}>
@@ -54,6 +63,17 @@ export function LoginPage() {
             onChange={(event) => setEmail(event.target.value)}
             placeholder="empleado@empresa.com"
             autoComplete="username"
+            disabled={isSubmitting}
+            required
+          />
+
+          <label htmlFor="password">Contraseña</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
             disabled={isSubmitting}
             required
           />
@@ -78,12 +98,13 @@ export function LoginPage() {
                 type="button"
                 className="btn btn-ghost login-demo-btn"
                 disabled={isSubmitting}
-                onClick={() => setEmail(user.email)}
+                onClick={() => fillDemoUser(user.email, user.password)}
               >
                 {user.label}
               </button>
             ))}
           </div>
+          <p className="login-hint">Admin: Admin123! · Demás usuarios: Cambiar123!</p>
         </div>
       </section>
     </div>

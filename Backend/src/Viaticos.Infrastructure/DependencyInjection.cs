@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddSingleton<IPasswordHasher, PasswordHasherService>();
 
         services.AddScoped<ILegalizacionRepository, LegalizacionRepository>();
         services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();

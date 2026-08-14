@@ -33,6 +33,7 @@ Esquema PostgreSQL simplificado para el flujo principal de legalización de viá
 | `006_indexes.sql` | Índices esenciales |
 | `007_functions_triggers.sql` | Numeración, totales, historial |
 | `008_seed_data.sql` | Datos demo |
+| `009_auth_password.sql` | Upgrade: columnas de contraseña en BD existente |
 | `run_all.sql` | Script maestro |
 | `000_drop_all.sql` | Reset (solo desarrollo) |
 
@@ -68,13 +69,21 @@ psql -U postgres -d viaticos -f run_all.sql
 
 ## Usuarios demo (seed)
 
-| Código | Email | Rol |
-|--------|-------|-----|
-| ADM001 | admin@empresa.com | ADMIN |
-| NOM001 | nomina@empresa.com | NOMINA |
-| JEF001 | jefe@empresa.com | JEFE_APROBADOR |
-| EMP001 | empleado@empresa.com | EMPLEADO (jefe: JEF001) |
-| EMP002 | empleado2@empresa.com | EMPLEADO (jefe: JEF001) |
+| Código | Email | Rol | Contraseña demo |
+|--------|-------|-----|-----------------|
+| ADM001 | admin@empresa.com | ADMIN | Admin123! |
+| NOM001 | nomina@empresa.com | NOMINA | Cambiar123! |
+| JEF001 | jefe@empresa.com | JEFE_APROBADOR | Cambiar123! |
+| EMP001 | empleado@empresa.com | EMPLEADO (jefe: JEF001) | Cambiar123! |
+| EMP002 | empleado2@empresa.com | EMPLEADO (jefe: JEF001) | Cambiar123! |
+
+Usuarios distintos de admin deben cambiar la contraseña en el primer ingreso (`must_change_password = true`).
+
+### Upgrade en BD existente
+
+```powershell
+psql -U postgres -d viaticos -f 009_auth_password.sql
+```
 
 ## Reset (desarrollo)
 

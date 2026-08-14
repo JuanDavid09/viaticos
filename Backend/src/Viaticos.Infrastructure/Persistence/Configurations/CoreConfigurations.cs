@@ -20,6 +20,8 @@ internal class EmpleadoConfiguration : IEntityTypeConfiguration<Empleado>
         builder.Property(e => e.Departamento).HasColumnName("departamento").HasMaxLength(100);
         builder.Property(e => e.Rol).HasColumnName("rol").HasPostgresEnum();
         builder.Property(e => e.JefeId).HasColumnName("jefe_id");
+        builder.Property(e => e.PasswordHash).HasColumnName("password_hash").HasMaxLength(255);
+        builder.Property(e => e.MustChangePassword).HasColumnName("must_change_password");
         builder.Property(e => e.Activo).HasColumnName("activo");
 
         builder.Property<DateTime>("CreatedAt").HasColumnName("created_at");

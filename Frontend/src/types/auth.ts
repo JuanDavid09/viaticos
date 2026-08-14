@@ -7,10 +7,17 @@ export type AuthSession = {
   email: string;
   rol: UserRole;
   nombreCompleto: string;
+  mustChangePassword: boolean;
 };
 
 export type LoginRequest = {
   email: string;
+  password: string;
+};
+
+export type ChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
 };
 
 export type ApiErrorBody = {
@@ -28,4 +35,13 @@ export class ApiError extends Error {
     this.status = status;
     this.code = code;
   }
+}
+
+export function mapLoginResponse(response: Omit<AuthSession, "mustChangePassword"> & {
+  mustChangePassword?: boolean;
+}): AuthSession {
+  return {
+    ...response,
+    mustChangePassword: response.mustChangePassword ?? false,
+  };
 }

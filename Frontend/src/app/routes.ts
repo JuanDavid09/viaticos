@@ -3,6 +3,8 @@ import type { UserRole } from "@/types/auth";
 export const appRoutes = {
   home: "/",
   login: "/login",
+  cambiarClave: "/cambiar-clave",
+  usuarios: "/usuarios",
   legalizaciones: "/legalizaciones",
   bandejas: "/bandejas",
   soportes: "/soportes",
@@ -10,7 +12,7 @@ export const appRoutes = {
 
 export type AppRoute = (typeof appRoutes)[keyof typeof appRoutes];
 
-export type NavRoute = Exclude<AppRoute, typeof appRoutes.login>;
+export type NavRoute = Exclude<AppRoute, typeof appRoutes.login | typeof appRoutes.cambiarClave>;
 
 export type NavItem = {
   to: NavRoute;
@@ -43,6 +45,12 @@ export const navItems: NavItem[] = [
     label: "Soportes y OCR",
     group: "Documentos",
     roles: ["EMPLEADO", "ADMIN"],
+  },
+  {
+    to: appRoutes.usuarios,
+    label: "Usuarios",
+    group: "Administración",
+    roles: ["ADMIN"],
   },
 ];
 

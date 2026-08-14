@@ -25,8 +25,8 @@ export function getInitials(name: string): string {
 }
 
 export const demoUsers = [
-  { email: "empleado@empresa.com", label: "Empleado" },
-  { email: "jefe@empresa.com", label: "Jefe" },
-  { email: "nomina@empresa.com", label: "Nómina" },
-  { email: "admin@empresa.com", label: "Admin" },
+  { email: "empleado@empresa.com", label: "Empleado", password: "Cambiar123!" },
+  { email: "jefe@empresa.com", label: "Jefe", password: "Cambiar123!" },
+  { email: "nomina@empresa.com", label: "Nómina", password: "Cambiar123!" },
+  { email: "admin@empresa.com", label: "Admin", password: "Admin123!" },
 ] as const;

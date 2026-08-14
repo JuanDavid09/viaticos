@@ -18,6 +18,12 @@ public interface IEmpleadoRepository
 {
     Task<Domain.Core.Entities.Empleado?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Domain.Core.Entities.Empleado?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<Domain.Core.Entities.Empleado?> GetByIdIncludingInactiveAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Domain.Core.Entities.Empleado>> ListAsync(bool includeInactive, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByEmailAsync(string email, Guid? excludeId = null, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByCodigoAsync(string codigoEmpleado, Guid? excludeId = null, CancellationToken cancellationToken = default);
+    Task AddAsync(Domain.Core.Entities.Empleado empleado, CancellationToken cancellationToken = default);
+    void Update(Domain.Core.Entities.Empleado empleado);
 }
 
 public interface ICatalogoRepository

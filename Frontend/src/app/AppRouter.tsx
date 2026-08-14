@@ -3,12 +3,15 @@ import { AppShell } from "@/components/layout/AppShell";
 import { appRoutes, getRouteRoles } from "@/app/routes";
 import { GuestRoute } from "@/features/auth/GuestRoute";
 import { ProtectedRoute } from "@/features/auth/ProtectedRoute";
+import { RequirePasswordChanged } from "@/features/auth/RequirePasswordChanged";
 import { RoleRoute } from "@/features/auth/RoleRoute";
 import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
+import { ChangePasswordPage } from "@/pages/ChangePasswordPage";
 import { LegalizacionesPage } from "@/pages/LegalizacionesPage";
 import { BandejasPage } from "@/pages/BandejasPage";
 import { SoportesPage } from "@/pages/SoportesPage";
+import { UsuariosPage } from "@/pages/UsuariosPage";
 
 export function AppRouter() {
   return (
@@ -18,21 +21,29 @@ export function AppRouter() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route element={<AppShell />}>
-          <Route path={appRoutes.home} element={<HomePage />} />
+        <Route path={appRoutes.cambiarClave} element={<ChangePasswordPage />} />
 
-          <Route
-            element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.legalizaciones) ?? []} />}
-          >
-            <Route path={appRoutes.legalizaciones} element={<LegalizacionesPage />} />
-          </Route>
+        <Route element={<RequirePasswordChanged />}>
+          <Route element={<AppShell />}>
+            <Route path={appRoutes.home} element={<HomePage />} />
 
-          <Route element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.bandejas) ?? []} />}>
-            <Route path={appRoutes.bandejas} element={<BandejasPage />} />
-          </Route>
+            <Route
+              element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.legalizaciones) ?? []} />}
+            >
+              <Route path={appRoutes.legalizaciones} element={<LegalizacionesPage />} />
+            </Route>
 
-          <Route element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.soportes) ?? []} />}>
-            <Route path={appRoutes.soportes} element={<SoportesPage />} />
+            <Route element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.bandejas) ?? []} />}>
+              <Route path={appRoutes.bandejas} element={<BandejasPage />} />
+            </Route>
+
+            <Route element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.soportes) ?? []} />}>
+              <Route path={appRoutes.soportes} element={<SoportesPage />} />
+            </Route>
+
+            <Route element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.usuarios) ?? []} />}>
+              <Route path={appRoutes.usuarios} element={<UsuariosPage />} />
+            </Route>
           </Route>
         </Route>
       </Route>

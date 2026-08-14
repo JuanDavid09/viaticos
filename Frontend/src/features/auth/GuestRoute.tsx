@@ -3,7 +3,7 @@ import { appRoutes } from "@/app/routes";
 import { useAuth } from "@/features/auth/AuthContext";
 
 export function GuestRoute() {
-  const { isAuthenticated, isBootstrapping } = useAuth();
+  const { isAuthenticated, isBootstrapping, mustChangePassword } = useAuth();
 
   if (isBootstrapping) {
     return (
@@ -14,7 +14,12 @@ export function GuestRoute() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to={appRoutes.home} replace />;
+    return (
+      <Navigate
+        to={mustChangePassword ? appRoutes.cambiarClave : appRoutes.home}
+        replace
+      />
+    );
   }
 
   return <Outlet />;

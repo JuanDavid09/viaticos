@@ -12,11 +12,14 @@ export function HomePage() {
       <main className="content">
         <div className="phase-banner">
           <div>
-            <strong>Fase 1 — Sesión activa</strong>
+            <strong>Fase 1 — Sesión con contraseña</strong>
             <p className="page-lead" style={{ marginBottom: 0 }}>
               {session
-                ? `Bienvenido, ${session.nombreCompleto}. Tu rol es ${getRoleLabel(session.rol).toLowerCase()} y el menú lateral refleja los módulos disponibles.`
+                ? `Bienvenido, ${session.nombreCompleto}. Tu rol es ${getRoleLabel(session.rol).toLowerCase()}.`
                 : "Cargando sesión…"}
+              {session?.mustChangePassword
+                ? " Debes cambiar tu contraseña antes de continuar."
+                : " El menú lateral refleja los módulos disponibles según tu rol."}
             </p>
           </div>
           <span className="badge">Conectado al API</span>
