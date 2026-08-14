@@ -10,6 +10,7 @@ namespace Viaticos.Infrastructure.Identity;
 public class JwtTokenService : IJwtTokenService
 {
     public const string MustChangePasswordClaim = "must_change_password";
+    public const string RoleClaim = "role";
 
     private readonly JwtSettings _settings;
 
@@ -33,8 +34,8 @@ public class JwtTokenService : IJwtTokenService
         {
             new(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new(JwtRegisteredClaimNames.Email, email),
-            new(ClaimTypes.Name, nombre),
-            new(ClaimTypes.Role, rol),
+            new(JwtRegisteredClaimNames.Name, nombre),
+            new(RoleClaim, rol),
             new(MustChangePasswordClaim, mustChangePassword ? "true" : "false"),
         };
 

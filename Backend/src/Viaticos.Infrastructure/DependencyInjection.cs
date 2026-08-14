@@ -1,10 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using Viaticos.Application.Common.Interfaces;
+using Viaticos.Domain.Core.Enums;
+using Viaticos.Domain.Documentos.Enums;
+using Viaticos.Domain.Legalizaciones.Enums;
 using Viaticos.Infrastructure.Identity;
 using Viaticos.Infrastructure.Ocr;
 using Viaticos.Infrastructure.Persistence;
+using Viaticos.Infrastructure.Persistence.Conversions;
 using Viaticos.Infrastructure.Persistence.Repositories;
 using Viaticos.Infrastructure.Storage;
 
@@ -17,8 +22,18 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+        var enumNameTranslator = new ViaticosNpgsqlNameTranslator();
+
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+        dataSourceBuilder.MapEnum<Rol>("core.rol_enum", enumNameTranslator);
+        dataSourceBuilder.MapEnum<EstadoLegalizacion>("viaticos.estado_legalizacion_enum", enumNameTranslator);
+        dataSourceBuilder.MapEnum<EstadoOcr>("docs.estado_ocr_enum", enumNameTranslator);
+        var dataSource = dataSourceBuilder.Build();
+
+        services.AddSingleton(dataSource);
+
         services.AddDbContext<ViaticosDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
+            options.UseNpgsql(dataSource, npgsql =>
             {
                 npgsql.MigrationsHistoryTable("__ef_migrations_history", "public");
             }));

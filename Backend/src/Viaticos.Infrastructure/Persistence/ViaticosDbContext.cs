@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Viaticos.Domain.Core.Entities;
+using Viaticos.Domain.Core.Enums;
 using Viaticos.Domain.Documentos.Entities;
+using Viaticos.Domain.Documentos.Enums;
 using Viaticos.Domain.Legalizaciones.Entities;
+using Viaticos.Domain.Legalizaciones.Enums;
 
 namespace Viaticos.Infrastructure.Persistence;
 
@@ -24,6 +27,10 @@ public class ViaticosDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresEnum<Rol>("rol_enum", "core");
+        modelBuilder.HasPostgresEnum<EstadoLegalizacion>("estado_legalizacion_enum", "viaticos");
+        modelBuilder.HasPostgresEnum<EstadoOcr>("estado_ocr_enum", "docs");
+
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ViaticosDbContext).Assembly);
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())

@@ -9,6 +9,7 @@ import {
 import { changePassword as changePasswordRequest, login as loginRequest } from "@/api/auth";
 import { clearSession, loadSession, saveSession } from "@/lib/authStorage";
 import type { AuthSession, ChangePasswordRequest, UserRole } from "@/types/auth";
+import { ApiError } from "@/types/auth";
 import { hasAnyRole } from "@/features/auth/roleUtils";
 
 type AuthContextValue = {
@@ -46,10 +47,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const changePassword = useCallback(
     async (request: ChangePasswordRequest) => {
-      const nextSession = await changePasswordRequest(request);
+      if (!session?.accessToken) {
+        throw new ApiError(401, "UNAUTHORIZED", "Sesión no válida. Vuelve a iniciar sesión.");
+      }
+      const nextSession = await changePasswordRequest(request, session.accessToken);
       applySession(nextSession);
     },
-    [applySession],
+    [session, applySession],
   );
 
   const logout = useCallback(() => {

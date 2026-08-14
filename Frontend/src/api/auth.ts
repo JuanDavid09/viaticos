@@ -13,12 +13,16 @@ export async function login(request: LoginRequest): Promise<AuthSession> {
   return mapLoginResponse(response);
 }
 
-export async function changePassword(request: ChangePasswordRequest): Promise<AuthSession> {
+export async function changePassword(
+  request: ChangePasswordRequest,
+  accessToken: string,
+): Promise<AuthSession> {
   const response = await apiRequest<Omit<AuthSession, "mustChangePassword"> & {
     mustChangePassword?: boolean;
   }>("/api/auth/change-password", {
     method: "POST",
     body: request,
+    accessToken,
   });
   return mapLoginResponse(response);
 }

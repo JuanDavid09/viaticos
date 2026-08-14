@@ -5,6 +5,7 @@ import { ApiError, type ApiErrorBody } from "@/types/auth";
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   auth?: boolean;
+  accessToken?: string | null;
 };
 
 function buildUrl(path: string): string {
@@ -27,7 +28,7 @@ async function parseError(response: Response): Promise<ApiError> {
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { body, auth = true, headers, ...rest } = options;
+  const { body, auth = true, accessToken, headers, ...rest } = options;
 
   const requestHeaders = new Headers(headers);
   if (body !== undefined) {
@@ -35,10 +36,11 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   }
 
   if (auth) {
-    const token = getAccessToken();
-    if (token) {
-      requestHeaders.set("Authorization", `Bearer ${token}`);
+    const token = accessToken ?? getAccessToken();
+    if (!token) {
+      throw new ApiError(401, "UNAUTHORIZED", "Sesión no válida. Vuelve a iniciar sesión.");
     }
+    requestHeaders.set("Authorization", `Bearer ${token}`);
   }
 
   const response = await fetch(buildUrl(path), {
