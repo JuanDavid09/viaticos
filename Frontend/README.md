@@ -4,7 +4,7 @@ SPA React + TypeScript para el MVP de legalización de viáticos.
 
 ## Fase actual
 
-**Fase 1** — Autenticación con contraseña, cambio obligatorio en primer acceso y gestión de usuarios (Admin).
+**Fase 2** — Legalizaciones del empleado: listado, creación, edición en borrador y gastos.
 
 ## Stack
 
@@ -44,6 +44,12 @@ El proxy de Vite reenvía `/api` al backend en `http://localhost:5228`. Asegúra
 | nomina@empresa.com | Cambiar123! | Debe cambiar clave al ingresar |
 
 Si la BD ya existía antes de este cambio, ejecuta `database/009_auth_password.sql`.
+
+## Legalizaciones (Fase 2)
+
+- `/legalizaciones` — listado del empleado
+- `/legalizaciones/nueva` — crear borrador
+- `/legalizaciones/:id` — detalle, editar datos y agregar gastos (solo en borrador)
 
 ## Convención
 

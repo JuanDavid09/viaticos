@@ -9,6 +9,8 @@ import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
 import { ChangePasswordPage } from "@/pages/ChangePasswordPage";
 import { LegalizacionesPage } from "@/pages/LegalizacionesPage";
+import { LegalizacionNuevaPage } from "@/pages/LegalizacionNuevaPage";
+import { LegalizacionDetallePage } from "@/pages/LegalizacionDetallePage";
 import { BandejasPage } from "@/pages/BandejasPage";
 import { SoportesPage } from "@/pages/SoportesPage";
 import { UsuariosPage } from "@/pages/UsuariosPage";
@@ -31,6 +33,8 @@ export function AppRouter() {
               element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.legalizaciones) ?? []} />}
             >
               <Route path={appRoutes.legalizaciones} element={<LegalizacionesPage />} />
+              <Route path={`${appRoutes.legalizaciones}/nueva`} element={<LegalizacionNuevaPage />} />
+              <Route path={`${appRoutes.legalizaciones}/:id`} element={<LegalizacionDetallePage />} />
             </Route>
 
             <Route element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.bandejas) ?? []} />}>

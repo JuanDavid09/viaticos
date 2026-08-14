@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { appRoutes } from "@/app/routes";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ApiError } from "@/types/auth";
@@ -51,9 +52,8 @@ export function ChangePasswordPage() {
 
         <form className="login-form" onSubmit={handleSubmit}>
           <label htmlFor="current-password">Contraseña actual</label>
-          <input
+          <PasswordInput
             id="current-password"
-            type="password"
             value={currentPassword}
             onChange={(event) => setCurrentPassword(event.target.value)}
             autoComplete="current-password"
@@ -62,9 +62,8 @@ export function ChangePasswordPage() {
           />
 
           <label htmlFor="new-password">Nueva contraseña</label>
-          <input
+          <PasswordInput
             id="new-password"
-            type="password"
             value={newPassword}
             onChange={(event) => setNewPassword(event.target.value)}
             autoComplete="new-password"
@@ -74,9 +73,8 @@ export function ChangePasswordPage() {
           />
 
           <label htmlFor="confirm-password">Confirmar nueva contraseña</label>
-          <input
+          <PasswordInput
             id="confirm-password"
-            type="password"
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             autoComplete="new-password"

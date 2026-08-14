@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Topbar } from "@/components/layout/Topbar";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { createEmpleado, listEmpleados, resetEmpleadoPassword, updateEmpleado } from "@/api/empleados";
 import { getRoleLabel } from "@/features/auth/roleUtils";
 import { ApiError, type UserRole } from "@/types/auth";
@@ -206,10 +207,10 @@ export function UsuariosPage() {
                   ))}
                 </select>
               </label>
-              <label>
+              <label htmlFor="password-temporal">
                 Contraseña temporal
-                <input
-                  type="password"
+                <PasswordInput
+                  id="password-temporal"
                   value={form.passwordTemporal}
                   onChange={(e) => setForm({ ...form, passwordTemporal: e.target.value })}
                   required

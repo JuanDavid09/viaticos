@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { appRoutes } from "@/app/routes";
 import { useAuth } from "@/features/auth/AuthContext";
 import { demoUsers } from "@/features/auth/roleUtils";
@@ -68,9 +69,8 @@ export function LoginPage() {
           />
 
           <label htmlFor="password">Contraseña</label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="current-password"

@@ -42,22 +42,22 @@ Implementación incremental. Cada fase se detiene para revisión visual y de có
 
 ---
 
-## Fase 2 — Legalizaciones del empleado (siguiente)
+## Fase 2 — Legalizaciones del empleado ✅
 
 **Objetivo:** Flujo diario del empleado.
 
-| Tarea | Detalle |
-|-------|---------|
-| Catálogos | Monedas y categorías |
-| Listado | Mis legalizaciones |
-| Crear / editar | Borrador |
-| Detalle | Gastos y totales |
+| Entregable | Estado |
+|------------|--------|
+| Catálogos (monedas y categorías) | ✅ |
+| Listado mis legalizaciones | ✅ |
+| Crear / editar borrador | ✅ |
+| Detalle con gastos y totales | ✅ |
 
 **Criterio de done:** El empleado crea una legalización y agrega un gasto.
 
 ---
 
-## Fase 3 — Workflow y bandejas
+## Fase 3 — Workflow y bandejas (siguiente)
 
 **Objetivo:** Aprobación y cierre.
 

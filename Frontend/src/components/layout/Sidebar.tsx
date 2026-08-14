@@ -45,7 +45,7 @@ export function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        Fase 1 — Autenticación con contraseña
+        Fase 2 — Legalizaciones empleado
         {env.apiBaseUrl ? ` · API ${env.apiBaseUrl}` : " · API vía proxy Vite"}
       </div>
     </aside>
