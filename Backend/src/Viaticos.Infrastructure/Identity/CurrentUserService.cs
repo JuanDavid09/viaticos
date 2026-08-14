@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Viaticos.Application.Common.Interfaces;
@@ -19,8 +20,9 @@ public class CurrentUserService : ICurrentUserService
     {
         get
         {
-            var idValue = User?.FindFirstValue(ClaimTypes.NameIdentifier)
-                ?? User?.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
+            var idValue =
+                User?.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                ?? User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
             return Guid.TryParse(idValue, out var id)
                 ? id
@@ -29,8 +31,8 @@ public class CurrentUserService : ICurrentUserService
     }
 
     public string Email =>
-        User?.FindFirstValue(ClaimTypes.Email)
-        ?? User?.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email)
+        User?.FindFirstValue(JwtRegisteredClaimNames.Email)
+        ?? User?.FindFirstValue(ClaimTypes.Email)
         ?? throw new UnauthorizedAccessException("Usuario no autenticado.");
 
     public bool IsInRole(string role)

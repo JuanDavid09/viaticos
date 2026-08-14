@@ -33,8 +33,9 @@ public static class AuthenticationExtensions
                     ValidAudience = jwtSettings.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
                     RoleClaimType = ClaimTypes.Role,
-                    NameClaimType = ClaimTypes.NameIdentifier
+                    NameClaimType = ClaimTypes.Name,
                 };
+                options.MapInboundClaims = false;
             });
 
         services.AddAuthorization(options =>

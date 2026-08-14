@@ -5,7 +5,6 @@ using Viaticos.Application.Auth.Commands;
 
 namespace Viaticos.Api.Controllers;
 
-[AllowAnonymous]
 [Route("api/[controller]")]
 public class AuthController : ApiControllerBase
 {
@@ -19,6 +18,7 @@ public class AuthController : ApiControllerBase
     /// <summary>
     /// Login con correo y contraseña. Retorna JWT.
     /// </summary>
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {

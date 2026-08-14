@@ -31,8 +31,8 @@ public class JwtTokenService : IJwtTokenService
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, userId.ToString()),
-            new(ClaimTypes.Email, email),
+            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new(JwtRegisteredClaimNames.Email, email),
             new(ClaimTypes.Name, nombre),
             new(ClaimTypes.Role, rol),
             new(MustChangePasswordClaim, mustChangePassword ? "true" : "false"),
