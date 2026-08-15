@@ -1,12 +1,27 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { EstadoBadge } from "@/components/legalizaciones/EstadoBadge";
 import { GastoForm } from "@/components/legalizaciones/GastoForm";
+import { HistorialTimeline } from "@/components/legalizaciones/HistorialTimeline";
 import { LegalizacionForm } from "@/components/legalizaciones/LegalizacionForm";
-import { addGasto, getLegalizacion, updateLegalizacion } from "@/api/legalizaciones";
+import { WorkflowActions } from "@/components/legalizaciones/WorkflowActions";
+import {
+  addGasto,
+  aprobarLegalizacion,
+  cerrarLegalizacion,
+  enviarAprobacion,
+  enviarNomina,
+  enviarValidacion,
+  getHistorial,
+  getLegalizacion,
+  reabrirLegalizacion,
+  rechazarLegalizacion,
+  updateLegalizacion,
+} from "@/api/legalizaciones";
 import { appRoutes } from "@/app/routes";
+import { useAuth } from "@/features/auth/AuthContext";
 import {
   findCategoria,
   findMoneda,
@@ -20,25 +35,51 @@ import {
   parseGastoRequest,
   parseLegalizacionRequest,
 } from "@/features/legalizaciones/legalizacionUtils";
+import { getWorkflowActionLabel } from "@/features/legalizaciones/workflowUtils";
 import { ApiError } from "@/types/auth";
 import {
   emptyGastoForm,
   type GastoFormValues,
   type LegalizacionDetalle,
   type LegalizacionFormValues,
+  type LegalizacionHistorial,
+  type WorkflowAction,
 } from "@/types/legalizacion";
 
 export function LegalizacionDetallePage() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const { session, hasRole } = useAuth();
+  const fromBandejas =
+    (location.state as { fromBandejas?: boolean } | null)?.fromBandejas ?? false;
+  const backTo = fromBandejas ? appRoutes.bandejas : appRoutes.legalizaciones;
+  const backLabel = fromBandejas ? "Volver a bandejas" : "Volver al listado";
+
   const { catalogos, isLoading: isLoadingCatalogos, error: catalogosError } = useCatalogos();
   const [legalizacion, setLegalizacion] = useState<LegalizacionDetalle | null>(null);
+  const [historial, setHistorial] = useState<LegalizacionHistorial[]>([]);
   const [form, setForm] = useState<LegalizacionFormValues | null>(null);
   const [gastoForm, setGastoForm] = useState<GastoFormValues>(emptyGastoForm);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingHistorial, setIsLoadingHistorial] = useState(true);
   const [isSavingLegalizacion, setIsSavingLegalizacion] = useState(false);
   const [isSavingGasto, setIsSavingGasto] = useState(false);
+  const [isSubmittingWorkflow, setIsSubmittingWorkflow] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const loadHistorial = useCallback(async () => {
+    if (!id) return;
+    setIsLoadingHistorial(true);
+    try {
+      const data = await getHistorial(id);
+      setHistorial(data);
+    } catch {
+      setHistorial([]);
+    } finally {
+      setIsLoadingHistorial(false);
+    }
+  }, [id]);
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -61,7 +102,8 @@ export function LegalizacionDetallePage() {
 
   useEffect(() => {
     void loadData();
-  }, [loadData]);
+    void loadHistorial();
+  }, [loadData, loadHistorial]);
 
   async function handleSaveLegalizacion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -106,8 +148,57 @@ export function LegalizacionDetallePage() {
     }
   }
 
+  async function handleWorkflowAction(action: WorkflowAction, comentario?: string) {
+    if (!id || !session) return;
+
+    setIsSubmittingWorkflow(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      let updated: LegalizacionDetalle;
+      switch (action) {
+        case "enviar-validacion":
+          updated = await enviarValidacion(id);
+          break;
+        case "enviar-aprobacion":
+          updated = await enviarAprobacion(id);
+          break;
+        case "aprobar":
+          updated = await aprobarLegalizacion(id);
+          break;
+        case "rechazar":
+          updated = await rechazarLegalizacion(id, { comentario: comentario ?? "" });
+          break;
+        case "reabrir":
+          updated = await reabrirLegalizacion(id);
+          break;
+        case "enviar-nomina":
+          updated = await enviarNomina(id);
+          break;
+        case "cerrar":
+          updated = await cerrarLegalizacion(id);
+          break;
+      }
+
+      setLegalizacion(updated);
+      setForm(legalizacionToFormValues(updated));
+      setSuccess(`${getWorkflowActionLabel(action)} completado.`);
+      await loadHistorial();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "No se pudo ejecutar la acción.");
+    } finally {
+      setIsSubmittingWorkflow(false);
+    }
+  }
+
   const moneda = legalizacion ? findMoneda(catalogos, legalizacion.monedaId) : null;
-  const editable = legalizacion ? isEditable(legalizacion.estado) : false;
+  const editable =
+    legalizacion && session
+      ? isEditable(legalizacion.estado) &&
+        (legalizacion.empleadoId === session.userId || hasRole("ADMIN"))
+      : false;
+  const canEditGastos = editable && legalizacion?.estado === "Borrador";
 
   return (
     <>
@@ -116,9 +207,9 @@ export function LegalizacionDetallePage() {
         kicker="Legalización"
       />
       <main className="content">
-        <Link className="back-link" to={appRoutes.legalizaciones}>
+        <Link className="back-link" to={backTo}>
           <ArrowLeft size={16} />
-          Volver al listado
+          {backLabel}
         </Link>
 
         {isLoading ? <p>Cargando detalle…</p> : null}
@@ -126,7 +217,7 @@ export function LegalizacionDetallePage() {
         {error ? <p className="login-error" role="alert">{error}</p> : null}
         {success ? <p className="success-banner">{success}</p> : null}
 
-        {legalizacion && form ? (
+        {legalizacion && form && session ? (
           <>
             <section className="detail-header card">
               <div className="detail-header-main">
@@ -158,6 +249,14 @@ export function LegalizacionDetallePage() {
                 </div>
               </div>
             </section>
+
+            <WorkflowActions
+              legalizacion={legalizacion}
+              rol={session.rol}
+              userId={session.userId}
+              isSubmitting={isSubmittingWorkflow}
+              onAction={handleWorkflowAction}
+            />
 
             <section className="grid grid-2 admin-layout">
               <article className="card card-form">
@@ -213,7 +312,7 @@ export function LegalizacionDetallePage() {
                   </div>
                 )}
 
-                {editable ? (
+                {canEditGastos ? (
                   <div className="section-divider">
                     <h4>Agregar gasto</h4>
                     {isLoadingCatalogos ? (
@@ -230,6 +329,15 @@ export function LegalizacionDetallePage() {
                   </div>
                 ) : null}
               </article>
+            </section>
+
+            <section className="card">
+              <h3>Historial de estados</h3>
+              {isLoadingHistorial ? (
+                <p>Cargando historial…</p>
+              ) : (
+                <HistorialTimeline items={historial} />
+              )}
             </section>
           </>
         ) : null}

@@ -7,14 +7,22 @@ import type { LegalizacionResumen } from "@/types/legalizacion";
 
 type LegalizacionListProps = {
   items: LegalizacionResumen[];
+  fromBandejas?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
 };
 
-export function LegalizacionList({ items }: LegalizacionListProps) {
+export function LegalizacionList({
+  items,
+  fromBandejas = false,
+  emptyTitle = "Sin legalizaciones todavía",
+  emptyDescription = "Crea tu primera legalización para registrar un viaje y sus gastos.",
+}: LegalizacionListProps) {
   if (items.length === 0) {
     return (
       <div className="empty-state">
-        <strong>Sin legalizaciones todavía</strong>
-        <p>Crea tu primera legalización para registrar un viaje y sus gastos.</p>
+        <strong>{emptyTitle}</strong>
+        <p>{emptyDescription}</p>
       </div>
     );
   }
@@ -25,6 +33,7 @@ export function LegalizacionList({ items }: LegalizacionListProps) {
         <Link
           key={item.id}
           to={`${appRoutes.legalizaciones}/${item.id}`}
+          state={{ fromBandejas }}
           className="table-row table-row-link"
         >
           <div>

@@ -11,15 +11,18 @@ public class ObtenerLegalizacionQueryHandler : IRequestHandler<ObtenerLegalizaci
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IDocumentoRepository _documentoRepository;
+    private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
 
     public ObtenerLegalizacionQueryHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser)
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
+        _workflow = workflow;
         _currentUser = currentUser;
     }
 
@@ -30,7 +33,21 @@ public class ObtenerLegalizacionQueryHandler : IRequestHandler<ObtenerLegalizaci
             return Result<LegalizacionDetalleDto>.Failure("NOT_FOUND", "Legalización no encontrada.");
 
         if (legalizacion.EmpleadoId != _currentUser.UserId && !_currentUser.IsInRole("Admin"))
-            return Result<LegalizacionDetalleDto>.Failure("FORBIDDEN", "No tiene permiso para ver esta legalización.");
+        {
+            if (_currentUser.IsInRole("JefeAprobador"))
+            {
+                var jefeAuth = await _workflow.EnsureIsJefeDelEmpleadoAsync(
+                    legalizacion,
+                    _currentUser.UserId,
+                    cancellationToken);
+                if (!jefeAuth.IsSuccess)
+                    return Result<LegalizacionDetalleDto>.Failure(jefeAuth.ErrorCode!, jefeAuth.Error!);
+            }
+            else if (!_currentUser.IsInRole("Nomina"))
+            {
+                return Result<LegalizacionDetalleDto>.Failure("FORBIDDEN", "No tiene permiso para ver esta legalización.");
+            }
+        }
 
         var soportes = await _documentoRepository.ListSoportesByGastoIdsAsync(
             legalizacion.Gastos.Select(g => g.Id),

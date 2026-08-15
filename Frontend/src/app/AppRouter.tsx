@@ -34,6 +34,15 @@ export function AppRouter() {
             >
               <Route path={appRoutes.legalizaciones} element={<LegalizacionesPage />} />
               <Route path={`${appRoutes.legalizaciones}/nueva`} element={<LegalizacionNuevaPage />} />
+            </Route>
+
+            <Route
+              element={
+                <RoleRoute
+                  allowedRoles={["EMPLEADO", "JEFE_APROBADOR", "NOMINA", "ADMIN"]}
+                />
+              }
+            >
               <Route path={`${appRoutes.legalizaciones}/:id`} element={<LegalizacionDetallePage />} />
             </Route>
 

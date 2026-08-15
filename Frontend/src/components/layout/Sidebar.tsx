@@ -45,7 +45,7 @@ export function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        Fase 2 — Legalizaciones empleado
+        Fase 3 — Workflow y bandejas
         {env.apiBaseUrl ? ` · API ${env.apiBaseUrl}` : " · API vía proxy Vite"}
       </div>
     </aside>

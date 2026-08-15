@@ -4,7 +4,9 @@ import type {
   AgregarGastoRequest,
   CrearLegalizacionRequest,
   LegalizacionDetalle,
+  LegalizacionHistorial,
   LegalizacionResumen,
+  RechazarLegalizacionRequest,
 } from "@/types/legalizacion";
 
 export async function listMisLegalizaciones(): Promise<LegalizacionResumen[]> {
@@ -41,5 +43,55 @@ export async function addGasto(
   return apiRequest<LegalizacionDetalle>(`/api/legalizaciones/${legalizacionId}/gastos`, {
     method: "POST",
     body: request,
+  });
+}
+
+export async function getHistorial(legalizacionId: string): Promise<LegalizacionHistorial[]> {
+  return apiRequest<LegalizacionHistorial[]>(`/api/legalizaciones/${legalizacionId}/historial`);
+}
+
+export async function enviarValidacion(id: string): Promise<LegalizacionDetalle> {
+  return apiRequest<LegalizacionDetalle>(`/api/legalizaciones/${id}/enviar-validacion`, {
+    method: "POST",
+  });
+}
+
+export async function enviarAprobacion(id: string): Promise<LegalizacionDetalle> {
+  return apiRequest<LegalizacionDetalle>(`/api/legalizaciones/${id}/enviar-aprobacion`, {
+    method: "POST",
+  });
+}
+
+export async function aprobarLegalizacion(id: string): Promise<LegalizacionDetalle> {
+  return apiRequest<LegalizacionDetalle>(`/api/legalizaciones/${id}/aprobar`, {
+    method: "POST",
+  });
+}
+
+export async function rechazarLegalizacion(
+  id: string,
+  request: RechazarLegalizacionRequest,
+): Promise<LegalizacionDetalle> {
+  return apiRequest<LegalizacionDetalle>(`/api/legalizaciones/${id}/rechazar`, {
+    method: "POST",
+    body: request,
+  });
+}
+
+export async function reabrirLegalizacion(id: string): Promise<LegalizacionDetalle> {
+  return apiRequest<LegalizacionDetalle>(`/api/legalizaciones/${id}/reabrir`, {
+    method: "POST",
+  });
+}
+
+export async function enviarNomina(id: string): Promise<LegalizacionDetalle> {
+  return apiRequest<LegalizacionDetalle>(`/api/legalizaciones/${id}/enviar-nomina`, {
+    method: "POST",
+  });
+}
+
+export async function cerrarLegalizacion(id: string): Promise<LegalizacionDetalle> {
+  return apiRequest<LegalizacionDetalle>(`/api/legalizaciones/${id}/cerrar`, {
+    method: "POST",
   });
 }

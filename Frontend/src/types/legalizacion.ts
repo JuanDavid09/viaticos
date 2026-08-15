@@ -72,6 +72,28 @@ export type AgregarGastoRequest = {
   numeroDocumento?: string;
 };
 
+export type RechazarLegalizacionRequest = {
+  comentario: string;
+};
+
+export type LegalizacionHistorial = {
+  id: string;
+  estadoAnterior: EstadoLegalizacion | null;
+  estadoNuevo: EstadoLegalizacion;
+  usuarioId: string;
+  comentario: string | null;
+  createdAt: string;
+};
+
+export type WorkflowAction =
+  | "enviar-validacion"
+  | "enviar-aprobacion"
+  | "aprobar"
+  | "rechazar"
+  | "reabrir"
+  | "enviar-nomina"
+  | "cerrar";
+
 export type LegalizacionFormValues = {
   motivo: string;
   destino: string;

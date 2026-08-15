@@ -430,6 +430,138 @@ button {
   align-items: center;
 }
 
+.workflow-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.workflow-actions h3 {
+  margin: 0 0 4px;
+}
+
+.workflow-actions-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 600;
+}
+
+.tab-button.active {
+  background: var(--color-sidebar);
+  border-color: var(--color-sidebar);
+  color: #fff;
+}
+
+.timeline {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 12px;
+}
+
+.timeline-marker {
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+
+.timeline-content {
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.timeline-item:last-child .timeline-content {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.timeline-arrow {
+  color: var(--color-ink-muted);
+  font-weight: 700;
+}
+
+.timeline-comment {
+  margin: 8px 0 0;
+  color: var(--color-ink);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 35, 36, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.modal-card {
+  width: min(100%, 480px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-close {
+  padding: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn-danger {
+  background: #8b1e1e;
+  color: #fff;
+}
+
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

@@ -57,22 +57,22 @@ Implementación incremental. Cada fase se detiene para revisión visual y de có
 
 ---
 
-## Fase 3 — Workflow y bandejas (siguiente)
+## Fase 3 — Workflow y bandejas ✅
 
 **Objetivo:** Aprobación y cierre.
 
-| Tarea | Detalle |
-|-------|---------|
-| Acciones de estado | Enviar, aprobar, rechazar, reabrir, cerrar |
-| Bandeja jefe | Pendientes de aprobación |
-| Bandeja nómina | Pendientes de cierre |
-| Historial | Línea de tiempo de estados |
+| Entregable | Estado |
+|------------|--------|
+| Acciones de estado | ✅ |
+| Bandeja jefe | ✅ |
+| Bandeja nómina | ✅ |
+| Historial | ✅ |
 
 **Criterio de done:** Flujo BORRADOR → CERRADA usable en UI.
 
 ---
 
-## Fase 4 — Soportes y OCR
+## Fase 4 — Soportes y OCR (siguiente)
 
 **Objetivo:** Adjuntar facturas y completar el gasto.
 

@@ -4,7 +4,7 @@ SPA React + TypeScript para el MVP de legalización de viáticos.
 
 ## Fase actual
 
-**Fase 2** — Legalizaciones del empleado: listado, creación, edición en borrador y gastos.
+**Fase 3** — Workflow y bandejas: acciones de estado, bandejas de jefe/nómina e historial.
 
 ## Stack
 
@@ -45,11 +45,19 @@ El proxy de Vite reenvía `/api` al backend en `http://localhost:5228`. Asegúra
 
 Si la BD ya existía antes de este cambio, ejecuta `database/009_auth_password.sql`.
 
-## Legalizaciones (Fase 2)
+## Legalizaciones (Fase 2–3)
 
 - `/legalizaciones` — listado del empleado
 - `/legalizaciones/nueva` — crear borrador
-- `/legalizaciones/:id` — detalle, editar datos y agregar gastos (solo en borrador)
+- `/legalizaciones/:id` — detalle, gastos, acciones de flujo e historial
+- `/bandejas` — pendientes de aprobación (jefe) y de cierre (nómina)
+
+### Flujo demo sugerido
+
+1. **empleado@empresa.com** — crear borrador, agregar gasto, enviar a validación y a aprobación
+2. **jefe@empresa.com** — bandejas → aprobar o rechazar con comentario
+3. **empleado** — si fue aprobada, enviar a nómina; si fue rechazada, reabrir
+4. **nomina@empresa.com** — bandejas → cerrar legalización
 
 ## Convención
 

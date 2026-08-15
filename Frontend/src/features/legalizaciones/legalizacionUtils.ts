@@ -30,7 +30,7 @@ export function getEstadoTone(estado: EstadoLegalizacion): string {
 }
 
 export function isEditable(estado: EstadoLegalizacion): boolean {
-  return estado === "Borrador";
+  return estado === "Borrador" || estado === "PendienteValidacion";
 }
 
 export function formatMoney(amount: number, moneda?: Moneda | null): string {
