@@ -72,21 +72,21 @@ Implementación incremental. Cada fase se detiene para revisión visual y de có
 
 ---
 
-## Fase 4 — Soportes y OCR (siguiente)
+## Fase 4 — Soportes y OCR ✅
 
 **Objetivo:** Adjuntar facturas y completar el gasto.
 
-| Tarea | Detalle |
-|-------|---------|
-| Upload multipart | JPG, PNG, PDF |
-| Procesar OCR | Campos extraídos |
-| Validar / aplicar | Copiar al gasto |
+| Entregable | Estado |
+|------------|--------|
+| Upload multipart | ✅ |
+| Procesar OCR | ✅ |
+| Validar / aplicar | ✅ |
 
 **Criterio de done:** El empleado sube un soporte y aplica datos al gasto.
 
 ---
 
-## Fase 5 — Pulido UX
+## Fase 5 — Pulido UX (siguiente)
 
 **Objetivo:** Experiencia de uso agradable y estable.
 

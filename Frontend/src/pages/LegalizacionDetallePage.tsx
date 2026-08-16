@@ -7,6 +7,7 @@ import { GastoForm } from "@/components/legalizaciones/GastoForm";
 import { HistorialTimeline } from "@/components/legalizaciones/HistorialTimeline";
 import { LegalizacionForm } from "@/components/legalizaciones/LegalizacionForm";
 import { WorkflowActions } from "@/components/legalizaciones/WorkflowActions";
+import { GastoSoporteSection } from "@/components/soportes/GastoSoporteSection";
 import {
   addGasto,
   aprobarLegalizacion,
@@ -199,6 +200,15 @@ export function LegalizacionDetallePage() {
         (legalizacion.empleadoId === session.userId || hasRole("ADMIN"))
       : false;
   const canEditGastos = editable && legalizacion?.estado === "Borrador";
+  const canEditSoportes =
+    legalizacion && session
+      ? isEditable(legalizacion.estado) && legalizacion.empleadoId === session.userId
+      : false;
+
+  function handleLegalizacionUpdated(updated: LegalizacionDetalle) {
+    setLegalizacion(updated);
+    setForm(legalizacionToFormValues(updated));
+  }
 
   return (
     <>
@@ -295,17 +305,32 @@ export function LegalizacionDetallePage() {
                     {legalizacion.gastos.map((gasto) => {
                       const categoria = findCategoria(catalogos, gasto.categoriaGastoId);
                       return (
-                        <div key={gasto.id} className="table-row">
-                          <div>
-                            <strong>{gasto.descripcion}</strong>
-                            <span className="table-meta">
-                              {categoria?.nombre ?? "Categoría"} · {formatDate(gasto.fechaGasto)}
-                            </span>
-                            {gasto.proveedor ? (
-                              <span className="table-meta">{gasto.proveedor}</span>
-                            ) : null}
+                        <div key={gasto.id} className="gasto-item">
+                          <div className="table-row">
+                            <div>
+                              <strong>{gasto.descripcion}</strong>
+                              <span className="table-meta">
+                                {categoria?.nombre ?? "Categoría"} · {formatDate(gasto.fechaGasto)}
+                              </span>
+                              {gasto.proveedor ? (
+                                <span className="table-meta">{gasto.proveedor}</span>
+                              ) : null}
+                              {gasto.numeroDocumento ? (
+                                <span className="table-meta">Doc. {gasto.numeroDocumento}</span>
+                              ) : null}
+                            </div>
+                            <strong>{formatMoney(gasto.monto, moneda)}</strong>
                           </div>
-                          <strong>{formatMoney(gasto.monto, moneda)}</strong>
+
+                          <GastoSoporteSection
+                            legalizacionId={legalizacion.id}
+                            gasto={gasto}
+                            editable={canEditSoportes}
+                            requiereSoporte={categoria?.requiereSoporte ?? false}
+                            onLegalizacionUpdated={handleLegalizacionUpdated}
+                            onMessage={setSuccess}
+                            onError={setError}
+                          />
                         </div>
                       );
                     })}

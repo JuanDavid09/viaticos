@@ -1,3 +1,5 @@
+import type { GastoSoporte } from "@/types/soporte";
+
 export type EstadoLegalizacion =
   | "Borrador"
   | "PendienteValidacion"
@@ -31,7 +33,7 @@ export type Gasto = {
   monto: number;
   validado: boolean;
   orden: number;
-  soportes: unknown[];
+  soportes: GastoSoporte[];
 };
 
 export type LegalizacionDetalle = {

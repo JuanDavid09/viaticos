@@ -12,7 +12,7 @@ export function HomePage() {
       <main className="content">
         <div className="phase-banner">
           <div>
-            <strong>Fase 3 — Workflow y bandejas</strong>
+            <strong>Fase 4 — Soportes y OCR</strong>
             <p className="page-lead" style={{ marginBottom: 0 }}>
               {session
                 ? `Bienvenido, ${session.nombreCompleto}. Tu rol es ${getRoleLabel(session.rol).toLowerCase()}.`

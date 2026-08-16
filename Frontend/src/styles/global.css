@@ -430,6 +430,80 @@ button {
   align-items: center;
 }
 
+.gasto-item {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.gasto-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.gasto-soporte-section {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+}
+
+.gasto-soporte-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.soporte-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #7a5a2a;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.soporte-ocr-panel {
+  padding: 12px 0;
+  border-top: 1px dashed var(--color-border);
+}
+
+.soporte-ocr-panel:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.soporte-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.soporte-upload input[type="file"] {
+  width: 100%;
+}
+
+.checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+}
+
+.ocr-campos-form {
+  margin-top: 12px;
+}
+
+.ocr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .workflow-actions {
   display: flex;
   justify-content: space-between;

@@ -4,7 +4,7 @@ SPA React + TypeScript para el MVP de legalización de viáticos.
 
 ## Fase actual
 
-**Fase 3** — Workflow y bandejas: acciones de estado, bandejas de jefe/nómina e historial.
+**Fase 4** — Soportes y OCR: upload de facturas, extracción OCR y aplicación al gasto.
 
 ## Stack
 
@@ -45,12 +45,20 @@ El proxy de Vite reenvía `/api` al backend en `http://localhost:5228`. Asegúra
 
 Si la BD ya existía antes de este cambio, ejecuta `database/009_auth_password.sql`.
 
-## Legalizaciones (Fase 2–3)
+## Legalizaciones y soportes (Fase 2–4)
 
 - `/legalizaciones` — listado del empleado
 - `/legalizaciones/nueva` — crear borrador
-- `/legalizaciones/:id` — detalle, gastos, acciones de flujo e historial
+- `/legalizaciones/:id` — detalle, gastos, workflow, historial y soportes/OCR por gasto
 - `/bandejas` — pendientes de aprobación (jefe) y de cierre (nómina)
+- `/soportes` — acceso rápido a legalizaciones editables para adjuntar facturas
+
+### Soportes y OCR
+
+1. En el detalle de una legalización editable, expande un gasto y adjunta JPG, PNG o PDF (máx. 10 MB).
+2. El sistema procesa OCR automáticamente (mock en desarrollo).
+3. Revisa o corrige los campos extraídos y pulsa **Validar campos**.
+4. Pulsa **Aplicar al gasto** para copiar proveedor, documento, monto y fecha.
 
 ### Flujo demo sugerido
 

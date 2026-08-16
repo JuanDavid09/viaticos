@@ -59,3 +59,36 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   return (await response.json()) as T;
 }
+
+export async function apiFormRequest<T>(
+  path: string,
+  formData: FormData,
+  options: { auth?: boolean; method?: string } = {},
+): Promise<T> {
+  const { auth = true, method = "POST" } = options;
+  const requestHeaders = new Headers();
+
+  if (auth) {
+    const token = getAccessToken();
+    if (!token) {
+      throw new ApiError(401, "UNAUTHORIZED", "Sesión no válida. Vuelve a iniciar sesión.");
+    }
+    requestHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
+  const response = await fetch(buildUrl(path), {
+    method,
+    headers: requestHeaders,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw await parseError(response);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return (await response.json()) as T;
+}
