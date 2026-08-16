@@ -12,12 +12,17 @@ const icons: Record<string, typeof Home> = {
   "/usuarios": Users,
 };
 
-export function Sidebar() {
+type SidebarProps = {
+  id?: string;
+  onNavigate?: () => void;
+};
+
+export function Sidebar({ id, onNavigate }: SidebarProps) {
   const { session } = useAuth();
   const visibleItems = session ? getNavItemsForRole(session.rol) : [];
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" id={id}>
       <div className="brand">
         <div className="brand-mark">V</div>
         <div>
@@ -36,6 +41,7 @@ export function Sidebar() {
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+              onClick={onNavigate}
             >
               <Icon size={18} />
               {item.label}
@@ -45,7 +51,7 @@ export function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        Fase 4 — Soportes y OCR
+        MVP Viáticos
         {env.apiBaseUrl ? ` · API ${env.apiBaseUrl}` : " · API vía proxy Vite"}
       </div>
     </aside>

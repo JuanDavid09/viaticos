@@ -1,9 +1,16 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Topbar } from "@/components/layout/Topbar";
+import { ResetPasswordModal } from "@/components/admin/ResetPasswordModal";
 import { PasswordInput } from "@/components/ui/PasswordInput";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { SuccessBanner } from "@/components/ui/SuccessBanner";
 import { createEmpleado, listEmpleados, resetEmpleadoPassword, updateEmpleado } from "@/api/empleados";
 import { getRoleLabel } from "@/features/auth/roleUtils";
-import { ApiError, type UserRole } from "@/types/auth";
+import { getApiErrorMessage } from "@/lib/apiErrorMessage";
+import type { UserRole } from "@/types/auth";
 import type { Empleado } from "@/types/empleado";
 import { roleOptions } from "@/types/empleado";
 
@@ -36,6 +43,8 @@ export function UsuariosPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [resetTarget, setResetTarget] = useState<Empleado | null>(null);
+  const [toggleTarget, setToggleTarget] = useState<Empleado | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -44,7 +53,7 @@ export function UsuariosPage() {
       const data = await listEmpleados(true);
       setEmpleados(data);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo cargar la lista de usuarios.");
+      setError(getApiErrorMessage(err, "No se pudo cargar la lista de usuarios."));
     } finally {
       setIsLoading(false);
     }
@@ -72,49 +81,52 @@ export function UsuariosPage() {
         jefeId: form.jefeId || undefined,
       });
       setForm(emptyForm);
-      setSuccess("Usuario creado. Deberá cambiar la contraseña en su primer ingreso.");
+      setSuccess("Usuario creado. Deberá cambiar la contraseña en su primer acceso.");
       await loadData();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo crear el usuario.");
+      setError(getApiErrorMessage(err, "No se pudo crear el usuario."));
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  async function toggleActivo(empleado: Empleado) {
+  async function confirmToggleActivo() {
+    if (!toggleTarget) return;
+
     setError(null);
     setSuccess(null);
     try {
-      await updateEmpleado(empleado.id, {
-        nombre: empleado.nombre,
-        apellido: empleado.apellido,
-        rol: empleado.rol,
-        departamento: empleado.departamento ?? undefined,
-        jefeId: empleado.jefeId,
-        activo: !empleado.activo,
+      await updateEmpleado(toggleTarget.id, {
+        nombre: toggleTarget.nombre,
+        apellido: toggleTarget.apellido,
+        rol: toggleTarget.rol,
+        departamento: toggleTarget.departamento ?? undefined,
+        jefeId: toggleTarget.jefeId,
+        activo: !toggleTarget.activo,
       });
-      setSuccess(`Usuario ${empleado.activo ? "desactivado" : "activado"}.`);
+      setSuccess(`Usuario ${toggleTarget.activo ? "desactivado" : "activado"}.`);
+      setToggleTarget(null);
       await loadData();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo actualizar el usuario.");
+      setError(getApiErrorMessage(err, "No se pudo actualizar el usuario."));
     }
   }
 
-  async function handleResetPassword(empleado: Empleado) {
-    const passwordTemporal = window.prompt(
-      `Nueva contraseña temporal para ${empleado.nombreCompleto}:`,
-      "Cambiar123!",
-    );
-    if (!passwordTemporal) return;
+  async function handleResetPassword(passwordTemporal: string) {
+    if (!resetTarget) return;
 
+    setIsSubmitting(true);
     setError(null);
     setSuccess(null);
     try {
-      await resetEmpleadoPassword(empleado.id, { passwordTemporal });
-      setSuccess(`Contraseña restablecida para ${empleado.nombreCompleto}. Deberá cambiarla al ingresar.`);
+      await resetEmpleadoPassword(resetTarget.id, { passwordTemporal });
+      setSuccess(`Contraseña restablecida para ${resetTarget.nombreCompleto}. Deberá cambiarla al ingresar.`);
+      setResetTarget(null);
       await loadData();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo restablecer la contraseña.");
+      setError(getApiErrorMessage(err, "No se pudo restablecer la contraseña."));
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -131,24 +143,26 @@ export function UsuariosPage() {
           cambiar su clave en el primer acceso.
         </p>
 
-        {error ? <p className="login-error" role="alert">{error}</p> : null}
-        {success ? <p className="success-banner">{success}</p> : null}
+        {error ? <ErrorBanner message={error} onRetry={() => void loadData()} /> : null}
+        {success ? <SuccessBanner message={success} onDismiss={() => setSuccess(null)} /> : null}
 
         <section className="grid grid-2 admin-layout">
           <article className="card card-form">
             <h3>Nuevo usuario</h3>
             <form className="stack-form" onSubmit={handleCreate}>
-              <label>
+              <label htmlFor="usuario-codigo">
                 Código
                 <input
+                  id="usuario-codigo"
                   value={form.codigoEmpleado}
                   onChange={(e) => setForm({ ...form, codigoEmpleado: e.target.value })}
                   required
                 />
               </label>
-              <label>
+              <label htmlFor="usuario-email">
                 Correo
                 <input
+                  id="usuario-email"
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -156,33 +170,37 @@ export function UsuariosPage() {
                 />
               </label>
               <div className="form-row">
-                <label>
+                <label htmlFor="usuario-nombre">
                   Nombre
                   <input
+                    id="usuario-nombre"
                     value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                     required
                   />
                 </label>
-                <label>
+                <label htmlFor="usuario-apellido">
                   Apellido
                   <input
+                    id="usuario-apellido"
                     value={form.apellido}
                     onChange={(e) => setForm({ ...form, apellido: e.target.value })}
                     required
                   />
                 </label>
               </div>
-              <label>
+              <label htmlFor="usuario-departamento">
                 Departamento
                 <input
+                  id="usuario-departamento"
                   value={form.departamento}
                   onChange={(e) => setForm({ ...form, departamento: e.target.value })}
                 />
               </label>
-              <label>
+              <label htmlFor="usuario-rol">
                 Rol
                 <select
+                  id="usuario-rol"
                   value={form.rol}
                   onChange={(e) => setForm({ ...form, rol: e.target.value as UserRole })}
                 >
@@ -193,9 +211,10 @@ export function UsuariosPage() {
                   ))}
                 </select>
               </label>
-              <label>
+              <label htmlFor="usuario-jefe">
                 Jefe (opcional)
                 <select
+                  id="usuario-jefe"
                   value={form.jefeId}
                   onChange={(e) => setForm({ ...form, jefeId: e.target.value })}
                 >
@@ -225,8 +244,13 @@ export function UsuariosPage() {
 
           <article className="card">
             <h3>Usuarios registrados</h3>
-            {isLoading ? <p>Cargando usuarios…</p> : null}
-            {!isLoading && empleados.length === 0 ? <p>No hay usuarios.</p> : null}
+            {isLoading ? <LoadingState label="Cargando usuarios…" skeletonRows={4} /> : null}
+            {!isLoading && empleados.length === 0 ? (
+              <EmptyState
+                title="No hay usuarios registrados"
+                description="Crea el primer usuario con el formulario de la izquierda."
+              />
+            ) : null}
             <div className="table-list">
               {empleados.map((empleado) => (
                 <div key={empleado.id} className="table-row">
@@ -243,14 +267,14 @@ export function UsuariosPage() {
                     <button
                       type="button"
                       className="btn btn-ghost"
-                      onClick={() => void handleResetPassword(empleado)}
+                      onClick={() => setResetTarget(empleado)}
                     >
                       Restablecer clave
                     </button>
                     <button
                       type="button"
-                      className="btn btn-ghost"
-                      onClick={() => void toggleActivo(empleado)}
+                      className={`btn ${empleado.activo ? "btn-danger" : "btn-primary"}`}
+                      onClick={() => setToggleTarget(empleado)}
                     >
                       {empleado.activo ? "Desactivar" : "Activar"}
                     </button>
@@ -261,6 +285,28 @@ export function UsuariosPage() {
           </article>
         </section>
       </main>
+
+      <ResetPasswordModal
+        isOpen={resetTarget !== null}
+        empleadoNombre={resetTarget?.nombreCompleto ?? ""}
+        isSubmitting={isSubmitting}
+        onClose={() => setResetTarget(null)}
+        onSubmit={(password) => void handleResetPassword(password)}
+      />
+
+      <ConfirmDialog
+        isOpen={toggleTarget !== null}
+        title={toggleTarget?.activo ? "Desactivar usuario" : "Activar usuario"}
+        message={
+          toggleTarget?.activo
+            ? `${toggleTarget.nombreCompleto} no podrá iniciar sesión hasta que lo actives de nuevo.`
+            : `¿Confirmas que deseas activar a ${toggleTarget?.nombreCompleto}?`
+        }
+        confirmLabel={toggleTarget?.activo ? "Desactivar" : "Activar"}
+        isDanger={toggleTarget?.activo ?? false}
+        onClose={() => setToggleTarget(null)}
+        onConfirm={() => void confirmToggleActivo()}
+      />
     </>
   );
 }

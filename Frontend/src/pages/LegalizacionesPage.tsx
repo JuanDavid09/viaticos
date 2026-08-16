@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { LegalizacionList } from "@/components/legalizaciones/LegalizacionList";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { listMisLegalizaciones } from "@/api/legalizaciones";
 import { appRoutes } from "@/app/routes";
-import { ApiError } from "@/types/auth";
+import { getApiErrorMessage } from "@/lib/apiErrorMessage";
 import type { LegalizacionResumen } from "@/types/legalizacion";
 
 export function LegalizacionesPage() {
@@ -20,7 +22,7 @@ export function LegalizacionesPage() {
       const data = await listMisLegalizaciones();
       setItems(data);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo cargar el listado.");
+      setError(getApiErrorMessage(err, "No se pudo cargar el listado."));
     } finally {
       setIsLoading(false);
     }
@@ -44,8 +46,12 @@ export function LegalizacionesPage() {
           </Link>
         </div>
 
-        {error ? <p className="login-error" role="alert">{error}</p> : null}
-        {isLoading ? <p>Cargando legalizaciones…</p> : <LegalizacionList items={items} />}
+        {error ? <ErrorBanner message={error} onRetry={() => void loadData()} /> : null}
+        {isLoading ? (
+          <LoadingState label="Cargando legalizaciones…" skeletonRows={4} />
+        ) : (
+          <LegalizacionList items={items} />
+        )}
       </main>
     </>
   );

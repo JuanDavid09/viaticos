@@ -869,13 +869,146 @@ button {
   padding: 8px 12px;
 }
 
+.loading-state {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 8px 0 16px;
+  color: var(--color-ink-muted);
+}
+
+.loading-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-sidebar);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.skeleton-list {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.skeleton-row {
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #eceae4 25%, #f7f4ed 50%, #eceae4 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fdecec;
+  color: #8b1e1e;
+  border: 1px solid #f3caca;
+}
+
+.error-banner p {
+  margin: 0;
+}
+
+.error-retry {
+  white-space: nowrap;
+}
+
+.empty-state-action {
+  margin-top: 12px;
+}
+
+.confirm-message {
+  margin: 0 0 8px;
+  color: var(--color-ink-muted);
+}
+
+.mobile-nav-bar {
+  display: none;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.tab-button:focus-visible {
+  outline: 2px solid var(--color-info);
+  outline-offset: 2px;
+}
+
 @media (max-width: 960px) {
   .app-shell {
     grid-template-columns: 1fr;
   }
 
+  .mobile-nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 18px;
+    background: var(--color-sidebar);
+    color: var(--color-sidebar-text);
+    position: sticky;
+    top: 0;
+    z-index: 120;
+  }
+
+  .mobile-nav-toggle {
+    color: var(--color-sidebar-text);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
   .sidebar {
-    display: none;
+    display: flex;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(100%, 280px);
+    z-index: 130;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    overflow-y: auto;
+  }
+
+  .app-shell.nav-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 125;
+    border: 0;
+    background: rgba(15, 35, 36, 0.45);
+    cursor: pointer;
   }
 
   .grid-3,
@@ -895,5 +1028,35 @@ button {
   .topbar {
     padding-left: 18px;
     padding-right: 18px;
+  }
+
+  .page-toolbar,
+  .detail-header,
+  .workflow-actions,
+  .topbar-actions,
+  .error-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .workflow-actions-buttons,
+  .table-actions,
+  .ocr-actions {
+    width: 100%;
+  }
+
+  .workflow-actions-buttons .btn,
+  .page-toolbar .btn,
+  .table-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .topbar-actions {
+    width: 100%;
+  }
+
+  .user-chip {
+    flex: 1;
   }
 }

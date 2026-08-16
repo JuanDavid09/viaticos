@@ -86,16 +86,16 @@ Implementación incremental. Cada fase se detiene para revisión visual y de có
 
 ---
 
-## Fase 5 — Pulido UX (siguiente)
+## Fase 5 — Pulido UX ✅
 
 **Objetivo:** Experiencia de uso agradable y estable.
 
-| Tarea | Detalle |
-|-------|---------|
-| Estados vacíos y de carga | Feedback claro |
-| Errores de API | Mensajes entendibles |
-| Accesibilidad básica | Foco, labels, contraste |
-| Ajustes visuales | Densidad, mobile |
+| Entregable | Estado |
+|------------|--------|
+| Estados vacíos y de carga | ✅ |
+| Errores de API | ✅ |
+| Accesibilidad básica | ✅ |
+| Ajustes visuales | ✅ |
 
 **Criterio de done:** El MVP se puede usar de punta a punta sin fricción obvia.
 

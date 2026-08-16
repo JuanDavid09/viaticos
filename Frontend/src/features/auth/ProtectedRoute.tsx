@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { appRoutes } from "@/app/routes";
 import { useAuth } from "@/features/auth/AuthContext";
 
@@ -9,7 +10,7 @@ export function ProtectedRoute() {
   if (isBootstrapping) {
     return (
       <div className="route-loading">
-        <p>Cargando sesión…</p>
+        <LoadingState label="Cargando sesión…" />
       </div>
     );
   }

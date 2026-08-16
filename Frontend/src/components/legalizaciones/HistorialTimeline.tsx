@@ -1,4 +1,5 @@
 import { EstadoBadge } from "@/components/legalizaciones/EstadoBadge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDateTime } from "@/features/legalizaciones/legalizacionUtils";
 import { parseEstadoLegalizacion } from "@/features/legalizaciones/workflowUtils";
 import type { LegalizacionHistorial } from "@/types/legalizacion";
@@ -10,10 +11,10 @@ type HistorialTimelineProps = {
 export function HistorialTimeline({ items }: HistorialTimelineProps) {
   if (items.length === 0) {
     return (
-      <div className="empty-state">
-        <strong>Sin movimientos registrados</strong>
-        <p>El historial aparecerá cuando la legalización cambie de estado.</p>
-      </div>
+      <EmptyState
+        title="Sin movimientos registrados"
+        description="El historial aparecerá cuando la legalización cambie de estado."
+      />
     );
   }
 

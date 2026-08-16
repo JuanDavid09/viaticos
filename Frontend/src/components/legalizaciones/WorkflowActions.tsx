@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { CheckCircle2, RotateCcw, Send, XCircle } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RechazarModal } from "@/components/legalizaciones/RechazarModal";
 import {
   getAvailableWorkflowActions,
   getWorkflowActionLabel,
+  getWorkflowConfirmMessage,
   isWorkflowDangerAction,
+  requiresWorkflowConfirmation,
 } from "@/features/legalizaciones/workflowUtils";
 import type { UserRole } from "@/types/auth";
 import type { LegalizacionDetalle, WorkflowAction } from "@/types/legalizacion";
@@ -38,10 +41,16 @@ export function WorkflowActions({
   onAction,
 }: WorkflowActionsProps) {
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<WorkflowAction | null>(null);
   const actions = getAvailableWorkflowActions(legalizacion, rol, userId);
 
   if (actions.length === 0) {
     return null;
+  }
+
+  async function executeAction(action: WorkflowAction) {
+    await onAction(action);
+    setPendingAction(null);
   }
 
   async function handleClick(action: WorkflowAction) {
@@ -50,13 +59,20 @@ export function WorkflowActions({
       return;
     }
 
-    await onAction(action);
+    if (requiresWorkflowConfirmation(action)) {
+      setPendingAction(action);
+      return;
+    }
+
+    await executeAction(action);
   }
 
   async function handleReject(comentario: string) {
     await onAction("rechazar", comentario);
     setShowRejectModal(false);
   }
+
+  const confirmCopy = pendingAction ? getWorkflowConfirmMessage(pendingAction) : null;
 
   return (
     <>
@@ -90,6 +106,17 @@ export function WorkflowActions({
         isSubmitting={isSubmitting}
         onClose={() => setShowRejectModal(false)}
         onSubmit={(comentario) => void handleReject(comentario)}
+      />
+
+      <ConfirmDialog
+        isOpen={pendingAction !== null}
+        title={confirmCopy?.title ?? "Confirmar acción"}
+        message={confirmCopy?.message ?? "¿Deseas continuar?"}
+        confirmLabel={pendingAction ? getWorkflowActionLabel(pendingAction) : "Confirmar"}
+        isDanger={pendingAction ? isWorkflowDangerAction(pendingAction) : false}
+        isSubmitting={isSubmitting}
+        onClose={() => setPendingAction(null)}
+        onConfirm={() => pendingAction && void executeAction(pendingAction)}
       />
     </>
   );

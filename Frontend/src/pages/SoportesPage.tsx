@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { FileUp } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { LegalizacionList } from "@/components/legalizaciones/LegalizacionList";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { listMisLegalizaciones } from "@/api/legalizaciones";
 import { appRoutes } from "@/app/routes";
 import { isEditable } from "@/features/legalizaciones/legalizacionUtils";
-import { ApiError } from "@/types/auth";
+import { getApiErrorMessage } from "@/lib/apiErrorMessage";
 import type { LegalizacionResumen } from "@/types/legalizacion";
 
 export function SoportesPage() {
@@ -21,7 +23,7 @@ export function SoportesPage() {
       const data = await listMisLegalizaciones();
       setItems(data);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo cargar el listado.");
+      setError(getApiErrorMessage(err, "No se pudo cargar el listado."));
     } finally {
       setIsLoading(false);
     }
@@ -44,15 +46,14 @@ export function SoportesPage() {
           <div>
             <strong>Adjunta facturas y aplica datos al gasto</strong>
             <p className="page-lead" style={{ marginBottom: 0 }}>
-              Abre una legalización en borrador o pendiente de validación, sube JPG/PNG/PDF
-              y usa el OCR para completar proveedor, monto y fecha.
+              Abre una legalización editable, sube JPG/PNG/PDF y usa el OCR para completar el gasto.
             </p>
           </div>
           <FileUp size={22} />
         </div>
 
-        {error ? <p className="login-error" role="alert">{error}</p> : null}
-        {isLoading ? <p>Cargando legalizaciones…</p> : null}
+        {error ? <ErrorBanner message={error} onRetry={() => void loadData()} /> : null}
+        {isLoading ? <LoadingState label="Cargando legalizaciones…" skeletonRows={3} /> : null}
 
         {!isLoading ? (
           <section className="card">
@@ -65,13 +66,6 @@ export function SoportesPage() {
               emptyTitle="No hay legalizaciones editables"
               emptyDescription="Crea una legalización en borrador y agrega gastos para adjuntar soportes."
             />
-            {editableItems.length === 0 ? (
-              <p style={{ marginTop: 16 }}>
-                <Link className="btn btn-primary" to={`${appRoutes.legalizaciones}/nueva`}>
-                  Crear legalización
-                </Link>
-              </p>
-            ) : null}
           </section>
         ) : null}
       </main>

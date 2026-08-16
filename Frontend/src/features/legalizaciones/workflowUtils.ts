@@ -20,7 +20,48 @@ export function getWorkflowActionLabel(action: WorkflowAction): string {
 }
 
 export function isWorkflowDangerAction(action: WorkflowAction): boolean {
-  return action === "rechazar";
+  return action === "rechazar" || action === "cerrar" || action === "reabrir";
+}
+
+export function requiresWorkflowConfirmation(action: WorkflowAction): boolean {
+  return action !== "aprobar";
+}
+
+export function getWorkflowConfirmMessage(action: WorkflowAction): { title: string; message: string } {
+  switch (action) {
+    case "enviar-validacion":
+      return {
+        title: "Enviar a validación",
+        message: "La legalización pasará a validación. Revisa que los gastos estén completos antes de continuar.",
+      };
+    case "enviar-aprobacion":
+      return {
+        title: "Enviar a aprobación",
+        message: "Se enviará al jefe aprobador. Ya no podrás modificar los datos del viaje.",
+      };
+    case "aprobar":
+      return {
+        title: "Aprobar legalización",
+        message: "¿Confirmas que apruebas esta legalización?",
+      };
+    case "reabrir":
+      return {
+        title: "Reabrir borrador",
+        message: "La legalización volverá a borrador para que el empleado pueda corregirla.",
+      };
+    case "enviar-nomina":
+      return {
+        title: "Enviar a nómina",
+        message: "Se enviará a nómina para el cierre del expediente.",
+      };
+    case "cerrar":
+      return {
+        title: "Cerrar legalización",
+        message: "Esta acción cierra la legalización de forma definitiva.",
+      };
+    default:
+      return { title: "Confirmar acción", message: "¿Deseas continuar?" };
+  }
 }
 
 export function getAvailableWorkflowActions(

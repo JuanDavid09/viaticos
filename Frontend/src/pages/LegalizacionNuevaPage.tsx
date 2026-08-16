@@ -3,16 +3,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { LegalizacionForm } from "@/components/legalizaciones/LegalizacionForm";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { createLegalizacion } from "@/api/legalizaciones";
 import { appRoutes } from "@/app/routes";
 import { useCatalogos } from "@/features/legalizaciones/useCatalogos";
 import { parseLegalizacionRequest } from "@/features/legalizaciones/legalizacionUtils";
-import { ApiError } from "@/types/auth";
+import { getApiErrorMessage } from "@/lib/apiErrorMessage";
 import { emptyLegalizacionForm, type LegalizacionFormValues } from "@/types/legalizacion";
 
 export function LegalizacionNuevaPage() {
   const navigate = useNavigate();
-  const { catalogos, isLoading: isLoadingCatalogos, error: catalogosError } = useCatalogos();
+  const { catalogos, isLoading: isLoadingCatalogos, error: catalogosError, reload } = useCatalogos();
   const [form, setForm] = useState<LegalizacionFormValues>(() => {
     const initial = { ...emptyLegalizacionForm };
     const today = new Date().toISOString().slice(0, 10);
@@ -38,7 +40,7 @@ export function LegalizacionNuevaPage() {
       const created = await createLegalizacion(parseLegalizacionRequest(form));
       navigate(`${appRoutes.legalizaciones}/${created.id}`, { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo crear la legalización.");
+      setError(getApiErrorMessage(err, "No se pudo crear la legalización."));
     } finally {
       setIsSubmitting(false);
     }
@@ -57,13 +59,15 @@ export function LegalizacionNuevaPage() {
           Completa los datos del viaje. Podrás agregar gastos mientras la legalización esté en borrador.
         </p>
 
-        {catalogosError ? <p className="login-error" role="alert">{catalogosError}</p> : null}
-        {error ? <p className="login-error" role="alert">{error}</p> : null}
+        {catalogosError ? (
+          <ErrorBanner message={catalogosError} onRetry={() => void reload()} />
+        ) : null}
+        {error ? <ErrorBanner message={error} /> : null}
 
         <article className="card card-form">
           <h3>Datos del viaje</h3>
           {isLoadingCatalogos ? (
-            <p>Cargando catálogos…</p>
+            <LoadingState label="Cargando catálogos…" />
           ) : (
             <LegalizacionForm
               form={form}

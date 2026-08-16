@@ -21,9 +21,10 @@ export function LegalizacionForm({
 }: LegalizacionFormProps) {
   return (
     <form className="stack-form" onSubmit={onSubmit}>
-      <label>
+      <label htmlFor="legalizacion-motivo">
         Motivo del viaje
         <textarea
+          id="legalizacion-motivo"
           value={form.motivo}
           onChange={(event) => onChange({ ...form, motivo: event.target.value })}
           rows={3}
@@ -32,9 +33,10 @@ export function LegalizacionForm({
         />
       </label>
 
-      <label>
+      <label htmlFor="legalizacion-destino">
         Destino
         <input
+          id="legalizacion-destino"
           value={form.destino}
           onChange={(event) => onChange({ ...form, destino: event.target.value })}
           placeholder="Ciudad o lugar"
@@ -43,9 +45,10 @@ export function LegalizacionForm({
       </label>
 
       <div className="form-row">
-        <label>
+        <label htmlFor="legalizacion-fecha-inicio">
           Fecha inicio
           <input
+            id="legalizacion-fecha-inicio"
             type="date"
             value={form.fechaInicio}
             onChange={(event) => onChange({ ...form, fechaInicio: event.target.value })}
@@ -53,9 +56,10 @@ export function LegalizacionForm({
             disabled={isSubmitting}
           />
         </label>
-        <label>
+        <label htmlFor="legalizacion-fecha-fin">
           Fecha fin
           <input
+            id="legalizacion-fecha-fin"
             type="date"
             value={form.fechaFin}
             onChange={(event) => onChange({ ...form, fechaFin: event.target.value })}
@@ -66,9 +70,10 @@ export function LegalizacionForm({
       </div>
 
       <div className="form-row">
-        <label>
+        <label htmlFor="legalizacion-moneda">
           Moneda
           <select
+            id="legalizacion-moneda"
             value={form.monedaId}
             onChange={(event) => onChange({ ...form, monedaId: event.target.value })}
             required
@@ -82,9 +87,10 @@ export function LegalizacionForm({
             ))}
           </select>
         </label>
-        <label>
+        <label htmlFor="legalizacion-anticipo">
           Anticipo
           <input
+            id="legalizacion-anticipo"
             type="number"
             min="0"
             step="0.01"

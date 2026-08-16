@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Topbar } from "@/components/layout/Topbar";
 import { LegalizacionList } from "@/components/legalizaciones/LegalizacionList";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { listPendientesAprobacion, listPendientesNomina } from "@/api/bandejas";
 import { useAuth } from "@/features/auth/AuthContext";
-import { ApiError } from "@/types/auth";
+import { getApiErrorMessage } from "@/lib/apiErrorMessage";
 import type { LegalizacionResumen } from "@/types/legalizacion";
 
 type BandejaTab = "aprobacion" | "nomina";
@@ -36,7 +38,7 @@ export function BandejasPage() {
       setAprobacionItems(aprobacion);
       setNominaItems(nomina);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudieron cargar las bandejas.");
+      setError(getApiErrorMessage(err, "No se pudieron cargar las bandejas."));
     } finally {
       setIsLoading(false);
     }
@@ -80,14 +82,15 @@ export function BandejasPage() {
           </div>
         ) : null}
 
-        {error ? <p className="login-error" role="alert">{error}</p> : null}
-        {isLoading ? <p>Cargando bandejas…</p> : null}
+        {error ? <ErrorBanner message={error} onRetry={() => void loadData()} /> : null}
+        {isLoading ? <LoadingState label="Cargando bandejas…" skeletonRows={3} /> : null}
 
         {!isLoading ? (
           <section className="card">
             <LegalizacionList
               items={currentItems}
               fromBandejas
+              emptyAction={null}
               emptyTitle={
                 activeTab === "aprobacion"
                   ? "No hay pendientes de aprobación"

@@ -4,7 +4,7 @@ SPA React + TypeScript para el MVP de legalización de viáticos.
 
 ## Fase actual
 
-**Fase 4** — Soportes y OCR: upload de facturas, extracción OCR y aplicación al gasto.
+**Fase 5** — Pulido UX: estados de carga, errores con reintento, confirmaciones, accesibilidad y navegación móvil.
 
 ## Stack
 

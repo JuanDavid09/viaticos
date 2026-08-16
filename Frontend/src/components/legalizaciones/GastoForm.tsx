@@ -19,9 +19,10 @@ export function GastoForm({
 }: GastoFormProps) {
   return (
     <form className="stack-form" onSubmit={onSubmit}>
-      <label>
+      <label htmlFor="gasto-categoria">
         Categoría
         <select
+          id="gasto-categoria"
           value={form.categoriaGastoId}
           onChange={(event) => onChange({ ...form, categoriaGastoId: event.target.value })}
           required
@@ -37,9 +38,10 @@ export function GastoForm({
       </label>
 
       <div className="form-row">
-        <label>
+        <label htmlFor="gasto-fecha">
           Fecha del gasto
           <input
+            id="gasto-fecha"
             type="date"
             value={form.fechaGasto}
             onChange={(event) => onChange({ ...form, fechaGasto: event.target.value })}
@@ -47,9 +49,10 @@ export function GastoForm({
             disabled={isSubmitting}
           />
         </label>
-        <label>
+        <label htmlFor="gasto-monto">
           Monto
           <input
+            id="gasto-monto"
             type="number"
             min="0.01"
             step="0.01"
@@ -61,9 +64,10 @@ export function GastoForm({
         </label>
       </div>
 
-      <label>
+      <label htmlFor="gasto-descripcion">
         Descripción
         <input
+          id="gasto-descripcion"
           value={form.descripcion}
           onChange={(event) => onChange({ ...form, descripcion: event.target.value })}
           required
@@ -72,17 +76,19 @@ export function GastoForm({
       </label>
 
       <div className="form-row">
-        <label>
+        <label htmlFor="gasto-proveedor">
           Proveedor
           <input
+            id="gasto-proveedor"
             value={form.proveedor}
             onChange={(event) => onChange({ ...form, proveedor: event.target.value })}
             disabled={isSubmitting}
           />
         </label>
-        <label>
+        <label htmlFor="gasto-documento">
           N.º documento
           <input
+            id="gasto-documento"
             value={form.numeroDocumento}
             onChange={(event) => onChange({ ...form, numeroDocumento: event.target.value })}
             disabled={isSubmitting}

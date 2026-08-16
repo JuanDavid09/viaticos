@@ -8,6 +8,10 @@ import { HistorialTimeline } from "@/components/legalizaciones/HistorialTimeline
 import { LegalizacionForm } from "@/components/legalizaciones/LegalizacionForm";
 import { WorkflowActions } from "@/components/legalizaciones/WorkflowActions";
 import { GastoSoporteSection } from "@/components/soportes/GastoSoporteSection";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { SuccessBanner } from "@/components/ui/SuccessBanner";
 import {
   addGasto,
   aprobarLegalizacion,
@@ -37,7 +41,7 @@ import {
   parseLegalizacionRequest,
 } from "@/features/legalizaciones/legalizacionUtils";
 import { getWorkflowActionLabel } from "@/features/legalizaciones/workflowUtils";
-import { ApiError } from "@/types/auth";
+import { getApiErrorMessage } from "@/lib/apiErrorMessage";
 import {
   emptyGastoForm,
   type GastoFormValues,
@@ -68,15 +72,18 @@ export function LegalizacionDetallePage() {
   const [isSubmittingWorkflow, setIsSubmittingWorkflow] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [historialError, setHistorialError] = useState<string | null>(null);
 
   const loadHistorial = useCallback(async () => {
     if (!id) return;
     setIsLoadingHistorial(true);
+    setHistorialError(null);
     try {
       const data = await getHistorial(id);
       setHistorial(data);
-    } catch {
+    } catch (err) {
       setHistorial([]);
+      setHistorialError(getApiErrorMessage(err, "No se pudo cargar el historial."));
     } finally {
       setIsLoadingHistorial(false);
     }
@@ -95,7 +102,7 @@ export function LegalizacionDetallePage() {
         fechaGasto: current.fechaGasto || data.fechaInicio.slice(0, 10),
       }));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo cargar la legalización.");
+      setError(getApiErrorMessage(err, "No se pudo cargar la legalización."));
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +127,7 @@ export function LegalizacionDetallePage() {
       setForm(legalizacionToFormValues(updated));
       setSuccess("Legalización actualizada.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo guardar la legalización.");
+      setError(getApiErrorMessage(err, "No se pudo guardar la legalización."));
     } finally {
       setIsSavingLegalizacion(false);
     }
@@ -143,7 +150,7 @@ export function LegalizacionDetallePage() {
       });
       setSuccess("Gasto agregado.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo agregar el gasto.");
+      setError(getApiErrorMessage(err, "No se pudo agregar el gasto."));
     } finally {
       setIsSavingGasto(false);
     }
@@ -187,7 +194,7 @@ export function LegalizacionDetallePage() {
       setSuccess(`${getWorkflowActionLabel(action)} completado.`);
       await loadHistorial();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo ejecutar la acción.");
+      setError(getApiErrorMessage(err, "No se pudo ejecutar la acción."));
     } finally {
       setIsSubmittingWorkflow(false);
     }
@@ -222,10 +229,31 @@ export function LegalizacionDetallePage() {
           {backLabel}
         </Link>
 
-        {isLoading ? <p>Cargando detalle…</p> : null}
-        {catalogosError ? <p className="login-error" role="alert">{catalogosError}</p> : null}
-        {error ? <p className="login-error" role="alert">{error}</p> : null}
-        {success ? <p className="success-banner">{success}</p> : null}
+        {isLoading ? <LoadingState label="Cargando detalle…" /> : null}
+        {catalogosError ? (
+          <ErrorBanner message={catalogosError} />
+        ) : null}
+        {error ? (
+          <ErrorBanner
+            message={error}
+            onRetry={!legalizacion ? () => void loadData() : undefined}
+          />
+        ) : null}
+        {success ? (
+          <SuccessBanner message={success} onDismiss={() => setSuccess(null)} />
+        ) : null}
+
+        {!isLoading && error && !legalizacion ? (
+          <EmptyState
+            title="No se pudo mostrar la legalización"
+            description="Verifica el enlace o vuelve al listado."
+            action={
+              <Link className="btn btn-primary" to={backTo}>
+                {backLabel}
+              </Link>
+            }
+          />
+        ) : null}
 
         {legalizacion && form && session ? (
           <>
@@ -273,7 +301,7 @@ export function LegalizacionDetallePage() {
                 <h3>Datos del viaje</h3>
                 {editable ? (
                   isLoadingCatalogos ? (
-                    <p>Cargando catálogos…</p>
+                    <LoadingState label="Cargando catálogos…" />
                   ) : (
                     <LegalizacionForm
                       form={form}
@@ -299,7 +327,14 @@ export function LegalizacionDetallePage() {
                 <h3>Gastos ({legalizacion.gastos.length})</h3>
 
                 {legalizacion.gastos.length === 0 ? (
-                  <p className="table-meta">Aún no hay gastos registrados.</p>
+                  <EmptyState
+                    title="Sin gastos registrados"
+                    description={
+                      canEditGastos
+                        ? "Agrega el primer gasto para continuar con la legalización."
+                        : "Esta legalización no tiene gastos asociados."
+                    }
+                  />
                 ) : (
                   <div className="table-list gastos-list">
                     {legalizacion.gastos.map((gasto) => {
@@ -341,7 +376,7 @@ export function LegalizacionDetallePage() {
                   <div className="section-divider">
                     <h4>Agregar gasto</h4>
                     {isLoadingCatalogos ? (
-                      <p>Cargando catálogos…</p>
+                      <LoadingState label="Cargando catálogos…" />
                     ) : (
                       <GastoForm
                         form={gastoForm}
@@ -358,8 +393,14 @@ export function LegalizacionDetallePage() {
 
             <section className="card">
               <h3>Historial de estados</h3>
+              {historialError ? (
+                <ErrorBanner
+                  message={historialError}
+                  onRetry={() => void loadHistorial()}
+                />
+              ) : null}
               {isLoadingHistorial ? (
-                <p>Cargando historial…</p>
+                <LoadingState label="Cargando historial…" skeletonRows={2} />
               ) : (
                 <HistorialTimeline items={historial} />
               )}
