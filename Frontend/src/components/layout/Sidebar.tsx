@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { BarChart3, FileText, FolderOpen, Home, Inbox, Users } from "lucide-react";
 import { getNavItemsForRole } from "@/app/routes";
+import { AppLogo } from "@/components/branding/AppLogo";
 import { useAuth } from "@/features/auth/AuthContext";
 import { env } from "@/config/env";
 
@@ -24,13 +25,7 @@ export function Sidebar({ id, onNavigate }: SidebarProps) {
 
   return (
     <aside className="sidebar" id={id}>
-      <div className="brand">
-        <div className="brand-mark">V</div>
-        <div>
-          <h1>Viáticos</h1>
-          <p>Legalización interna</p>
-        </div>
-      </div>
+      <AppLogo variant="sidebar" />
 
       <nav className="nav-group" aria-label="Principal">
         <div className="nav-label">Navegación</div>
