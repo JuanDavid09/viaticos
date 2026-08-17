@@ -32,6 +32,9 @@
 \echo '>>> 008: Seed Data'
 \i 008_seed_data.sql
 
+\echo '>>> 010: Notificaciones'
+\i 010_notificaciones.sql
+
 \echo ''
 \echo '=== MVP instalado exitosamente ==='
 \echo 'Schemas: core, viaticos, docs'

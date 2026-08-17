@@ -58,3 +58,23 @@ internal class CategoriaGastoConfiguration : IEntityTypeConfiguration<CategoriaG
         builder.Property(c => c.Activo).HasColumnName("activo");
     }
 }
+
+internal class NotificacionConfiguration : IEntityTypeConfiguration<Notificacion>
+{
+    public void Configure(EntityTypeBuilder<Notificacion> builder)
+    {
+        builder.ToTable("notificacion", "core");
+
+        builder.HasKey(n => n.Id);
+
+        builder.Property(n => n.DestinatarioId).HasColumnName("destinatario_id");
+        builder.Property(n => n.Tipo).HasColumnName("tipo").HasMaxLength(50);
+        builder.Property(n => n.Titulo).HasColumnName("titulo").HasMaxLength(200);
+        builder.Property(n => n.Mensaje).HasColumnName("mensaje");
+        builder.Property(n => n.EntidadTipo).HasColumnName("entidad_tipo").HasMaxLength(50);
+        builder.Property(n => n.EntidadId).HasColumnName("entidad_id");
+        builder.Property(n => n.Leida).HasColumnName("leida");
+        builder.Property(n => n.LeidaAt).HasColumnName("leida_at");
+        builder.Property(n => n.CreatedAt).HasColumnName("created_at");
+    }
+}

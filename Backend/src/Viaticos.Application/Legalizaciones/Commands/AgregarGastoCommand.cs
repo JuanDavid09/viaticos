@@ -32,15 +32,21 @@ public class AgregarGastoCommandValidator : AbstractValidator<AgregarGastoComman
 public class AgregarGastoCommandHandler : IRequestHandler<AgregarGastoCommand, Result<LegalizacionDetalleDto>>
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
+    private readonly IEmpleadoRepository _empleadoRepository;
+    private readonly INotificacionService _notificacionService;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
 
     public AgregarGastoCommandHandler(
         ILegalizacionRepository legalizacionRepository,
+        IEmpleadoRepository empleadoRepository,
+        INotificacionService notificacionService,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork)
     {
         _legalizacionRepository = legalizacionRepository;
+        _empleadoRepository = empleadoRepository;
+        _notificacionService = notificacionService;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
     }
@@ -69,6 +75,19 @@ public class AgregarGastoCommandHandler : IRequestHandler<AgregarGastoCommand, R
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var updated = await _legalizacionRepository.GetByIdAsync(request.LegalizacionId, cancellationToken);
+            var empleado = await _empleadoRepository.GetByIdAsync(_currentUser.UserId, cancellationToken);
+            var empleadoNombre = empleado is null
+                ? "Empleado"
+                : $"{empleado.Nombre} {empleado.Apellido}".Trim();
+
+            await _notificacionService.NotificarGastoAgregadoAsync(
+                updated!,
+                empleadoNombre,
+                request.Descripcion,
+                request.Monto,
+                _currentUser.UserId,
+                cancellationToken);
+
             return Result<LegalizacionDetalleDto>.Success(LegalizacionMapper.ToDetalle(updated!));
         }
         catch (DomainException ex)

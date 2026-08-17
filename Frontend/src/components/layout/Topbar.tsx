@@ -1,5 +1,6 @@
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 import { appRoutes } from "@/app/routes";
 import { useAuth } from "@/features/auth/AuthContext";
 import { getInitials, getRoleLabel } from "@/features/auth/roleUtils";
@@ -20,31 +21,43 @@ export function Topbar({ title, kicker }: TopbarProps) {
 
   return (
     <header className="topbar">
-      <div>
+      <div className="topbar-heading">
         {kicker ? <p className="page-kicker">{kicker}</p> : null}
-        <h2 className="page-title" style={{ marginBottom: 0, fontSize: "1.15rem" }}>
-          {title}
-        </h2>
+        <h2 className="page-title topbar-title">{title}</h2>
       </div>
 
       {session ? (
         <div className="topbar-actions">
-          <div className="user-chip" title={session.email}>
-            <span className="avatar">{getInitials(session.nombreCompleto)}</span>
-            <span className="user-chip-text">
-              <strong>{session.nombreCompleto}</strong>
-              <span className="role-badge">{getRoleLabel(session.rol)}</span>
-            </span>
+          <div className="topbar-toolbar">
+            <NotificationBell />
+
+            <span className="topbar-divider" aria-hidden="true" />
+
+            <div className="topbar-user-card" title={session.email}>
+              <span className="avatar avatar-lg topbar-avatar" aria-hidden="true">
+                {getInitials(session.nombreCompleto)}
+              </span>
+              <div className="topbar-user-meta">
+                <strong>{session.nombreCompleto}</strong>
+                <span className="topbar-user-email">{session.email}</span>
+                <span className="topbar-user-role">{getRoleLabel(session.rol)}</span>
+              </div>
+              <span className="topbar-status-dot" title="Sesión activa" aria-hidden="true" />
+            </div>
+
+            <span className="topbar-divider" aria-hidden="true" />
+
+            <button
+              type="button"
+              className="btn topbar-logout-btn"
+              onClick={handleLogout}
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
+            >
+              <LogOut size={18} />
+              <span className="topbar-logout-label">Salir</span>
+            </button>
           </div>
-          <button
-            type="button"
-            className="btn btn-ghost topbar-logout"
-            onClick={handleLogout}
-            aria-label="Cerrar sesión"
-          >
-            <LogOut size={16} />
-            Salir
-          </button>
         </div>
       ) : null}
     </header>

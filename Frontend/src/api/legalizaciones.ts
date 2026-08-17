@@ -3,6 +3,7 @@ import type {
   ActualizarLegalizacionRequest,
   AgregarGastoRequest,
   CrearLegalizacionRequest,
+  LegalizacionCalendario,
   LegalizacionDetalle,
   LegalizacionHistorial,
   LegalizacionResumen,
@@ -11,6 +12,19 @@ import type {
 
 export async function listMisLegalizaciones(): Promise<LegalizacionResumen[]> {
   return apiRequest<LegalizacionResumen[]>("/api/legalizaciones");
+}
+
+export async function listCalendarioLegalizaciones(params?: {
+  desde?: string;
+  hasta?: string;
+}): Promise<LegalizacionCalendario[]> {
+  const search = new URLSearchParams();
+  if (params?.desde) search.set("desde", params.desde);
+  if (params?.hasta) search.set("hasta", params.hasta);
+  const query = search.toString();
+  return apiRequest<LegalizacionCalendario[]>(
+    `/api/legalizaciones/calendario${query ? `?${query}` : ""}`,
+  );
 }
 
 export async function getLegalizacion(id: string): Promise<LegalizacionDetalle> {

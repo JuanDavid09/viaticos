@@ -24,6 +24,7 @@ public class ViaticosDbContext : DbContext
     public DbSet<Archivo> Archivos => Set<Archivo>();
     public DbSet<OcrExtraccion> OcrExtracciones => Set<OcrExtraccion>();
     public DbSet<OcrCampo> OcrCampos => Set<OcrCampo>();
+    public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

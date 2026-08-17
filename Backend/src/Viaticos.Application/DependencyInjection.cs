@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Viaticos.Application.Common.Behaviors;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Application.Legalizaciones.Services;
+using Viaticos.Application.Notificaciones.Services;
 
 namespace Viaticos.Application;
 
@@ -15,6 +16,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddScoped<ILegalizacionWorkflowService, LegalizacionWorkflowService>();
+        services.AddScoped<INotificacionService, NotificacionService>();
 
         return services;
     }

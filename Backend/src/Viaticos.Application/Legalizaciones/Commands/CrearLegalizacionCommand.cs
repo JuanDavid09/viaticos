@@ -31,15 +31,21 @@ public class CrearLegalizacionCommandValidator : AbstractValidator<CrearLegaliza
 public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacionCommand, Result<LegalizacionDetalleDto>>
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
+    private readonly IEmpleadoRepository _empleadoRepository;
+    private readonly INotificacionService _notificacionService;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
 
     public CrearLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
+        IEmpleadoRepository empleadoRepository,
+        INotificacionService notificacionService,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork)
     {
         _legalizacionRepository = legalizacionRepository;
+        _empleadoRepository = empleadoRepository;
+        _notificacionService = notificacionService;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
     }
@@ -62,6 +68,17 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var persisted = await _legalizacionRepository.GetByIdAsync(legalizacion.Id, cancellationToken);
+            var empleado = await _empleadoRepository.GetByIdAsync(_currentUser.UserId, cancellationToken);
+            var empleadoNombre = empleado is null
+                ? "Empleado"
+                : $"{empleado.Nombre} {empleado.Apellido}".Trim();
+
+            await _notificacionService.NotificarLegalizacionCreadaAsync(
+                persisted!,
+                empleadoNombre,
+                _currentUser.UserId,
+                cancellationToken);
+
             return Result<LegalizacionDetalleDto>.Success(LegalizacionMapper.ToDetalle(persisted!));
         }
         catch (DomainException ex)

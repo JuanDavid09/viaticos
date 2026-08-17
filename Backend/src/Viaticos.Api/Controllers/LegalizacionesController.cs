@@ -24,6 +24,17 @@ public class LegalizacionesController : ApiControllerBase
         return FromResult(result);
     }
 
+    [HttpGet("calendario")]
+    [Authorize(Policy = Infrastructure.Identity.AuthPolicies.Jefe)]
+    public async Task<IActionResult> ListarCalendario(
+        [FromQuery] DateOnly? desde,
+        [FromQuery] DateOnly? hasta,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ListarCalendarioLegalizacionesQuery(desde, hasta), cancellationToken);
+        return FromResult(result);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Obtener(Guid id, CancellationToken cancellationToken)
     {

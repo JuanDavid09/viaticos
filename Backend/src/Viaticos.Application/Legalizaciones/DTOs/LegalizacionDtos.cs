@@ -22,6 +22,23 @@ public record GastoDto(
     short Orden,
     IReadOnlyList<GastoSoporteDto> Soportes);
 
+public record LegalizacionCalendarioDto(
+    Guid Id,
+    string Numero,
+    Guid EmpleadoId,
+    string EmpleadoNombre,
+    string Motivo,
+    string? Destino,
+    DateOnly FechaInicio,
+    DateOnly FechaFin,
+    string Estado,
+    decimal MontoAnticipo,
+    decimal TotalGastos,
+    decimal TotalReembolso,
+    decimal TotalDevolucion,
+    string MonedaSimbolo,
+    DateTime CreatedAt);
+
 public record LegalizacionResumenDto(
     Guid Id,
     string Numero,
@@ -80,6 +97,27 @@ public static class LegalizacionMapper
             gasto.Validado,
             gasto.Orden,
             soportes);
+
+    public static LegalizacionCalendarioDto ToCalendario(
+        Legalizacion legalizacion,
+        string empleadoNombre,
+        string monedaSimbolo) =>
+        new(
+            legalizacion.Id,
+            legalizacion.Numero,
+            legalizacion.EmpleadoId,
+            empleadoNombre,
+            legalizacion.Motivo,
+            legalizacion.Destino,
+            legalizacion.FechaInicio,
+            legalizacion.FechaFin,
+            legalizacion.Estado.ToString(),
+            legalizacion.MontoAnticipo,
+            legalizacion.TotalGastos,
+            legalizacion.TotalReembolso,
+            legalizacion.TotalDevolucion,
+            monedaSimbolo,
+            legalizacion.CreatedAt);
 
     public static LegalizacionResumenDto ToResumen(Legalizacion legalizacion, DateTime createdAt) =>
         new(

@@ -23,6 +23,24 @@ export type LegalizacionResumen = {
   createdAt: string;
 };
 
+export type LegalizacionCalendario = {
+  id: string;
+  numero: string;
+  empleadoId: string;
+  empleadoNombre: string;
+  motivo: string;
+  destino: string | null;
+  fechaInicio: string;
+  fechaFin: string;
+  estado: EstadoLegalizacion;
+  montoAnticipo: number;
+  totalGastos: number;
+  totalReembolso: number;
+  totalDevolucion: number;
+  monedaSimbolo: string;
+  createdAt: string;
+};
+
 export type Gasto = {
   id: string;
   categoriaGastoId: string;

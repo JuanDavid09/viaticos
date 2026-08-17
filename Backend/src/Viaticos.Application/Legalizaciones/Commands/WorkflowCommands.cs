@@ -3,6 +3,7 @@ using MediatR;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Application.Common.Models;
 using Viaticos.Application.Legalizaciones.DTOs;
+using Viaticos.Application.Notificaciones;
 using Viaticos.Domain.Common;
 using Viaticos.Domain.Legalizaciones.Entities;
 
@@ -38,7 +39,12 @@ internal static class WorkflowCommandHelper
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
         IUnitOfWork unitOfWork,
+        INotificacionService notificacionService,
+        IEmpleadoRepository empleadoRepository,
+        ICurrentUserService currentUser,
         Action<Legalizacion> action,
+        string eventoNotificacion,
+        string? detalle,
         CancellationToken cancellationToken)
     {
         var legalizacion = await legalizacionRepository.GetByIdAsync(legalizacionId, cancellationToken);
@@ -52,8 +58,21 @@ internal static class WorkflowCommandHelper
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             var updated = await legalizacionRepository.GetByIdAsync(legalizacionId, cancellationToken);
+            var empleado = await empleadoRepository.GetByIdAsync(updated!.EmpleadoId, cancellationToken);
+            var empleadoNombre = empleado is null
+                ? "Empleado"
+                : $"{empleado.Nombre} {empleado.Apellido}".Trim();
+
+            await notificacionService.NotificarTransicionWorkflowAsync(
+                updated,
+                empleadoNombre,
+                eventoNotificacion,
+                currentUser.UserId,
+                detalle,
+                cancellationToken);
+
             var soportes = await documentoRepository.ListSoportesByGastoIdsAsync(
-                updated!.Gastos.Select(g => g.Id),
+                updated.Gastos.Select(g => g.Id),
                 cancellationToken);
 
             return Result<LegalizacionDetalleDto>.Success(LegalizacionMapper.ToDetalle(updated, soportes));
@@ -72,19 +91,25 @@ public class EnviarValidacionCommandHandler : IRequestHandler<EnviarValidacionCo
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificacionService _notificacionService;
+    private readonly IEmpleadoRepository _empleadoRepository;
 
     public EnviarValidacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        INotificacionService notificacionService,
+        IEmpleadoRepository empleadoRepository)
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
+        _notificacionService = notificacionService;
+        _empleadoRepository = empleadoRepository;
     }
 
     public async Task<Result<LegalizacionDetalleDto>> Handle(EnviarValidacionCommand request, CancellationToken cancellationToken)
@@ -102,7 +127,12 @@ public class EnviarValidacionCommandHandler : IRequestHandler<EnviarValidacionCo
             _legalizacionRepository,
             _documentoRepository,
             _unitOfWork,
+            _notificacionService,
+            _empleadoRepository,
+            _currentUser,
             l => l.EnviarValidacion(_currentUser.UserId),
+            NotificacionTipos.EnviadaValidacion,
+            null,
             cancellationToken);
     }
 }
@@ -114,19 +144,25 @@ public class EnviarAprobacionCommandHandler : IRequestHandler<EnviarAprobacionCo
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificacionService _notificacionService;
+    private readonly IEmpleadoRepository _empleadoRepository;
 
     public EnviarAprobacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        INotificacionService notificacionService,
+        IEmpleadoRepository empleadoRepository)
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
+        _notificacionService = notificacionService;
+        _empleadoRepository = empleadoRepository;
     }
 
     public async Task<Result<LegalizacionDetalleDto>> Handle(EnviarAprobacionCommand request, CancellationToken cancellationToken)
@@ -144,7 +180,12 @@ public class EnviarAprobacionCommandHandler : IRequestHandler<EnviarAprobacionCo
             _legalizacionRepository,
             _documentoRepository,
             _unitOfWork,
+            _notificacionService,
+            _empleadoRepository,
+            _currentUser,
             l => l.EnviarAprobacion(_currentUser.UserId),
+            NotificacionTipos.EnviadaAprobacion,
+            null,
             cancellationToken);
     }
 }
@@ -156,19 +197,25 @@ public class AprobarLegalizacionCommandHandler : IRequestHandler<AprobarLegaliza
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificacionService _notificacionService;
+    private readonly IEmpleadoRepository _empleadoRepository;
 
     public AprobarLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        INotificacionService notificacionService,
+        IEmpleadoRepository empleadoRepository)
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
+        _notificacionService = notificacionService;
+        _empleadoRepository = empleadoRepository;
     }
 
     public async Task<Result<LegalizacionDetalleDto>> Handle(AprobarLegalizacionCommand request, CancellationToken cancellationToken)
@@ -189,7 +236,12 @@ public class AprobarLegalizacionCommandHandler : IRequestHandler<AprobarLegaliza
             _legalizacionRepository,
             _documentoRepository,
             _unitOfWork,
+            _notificacionService,
+            _empleadoRepository,
+            _currentUser,
             l => l.Aprobar(_currentUser.UserId),
+            NotificacionTipos.Aprobada,
+            null,
             cancellationToken);
     }
 }
@@ -201,19 +253,25 @@ public class RechazarLegalizacionCommandHandler : IRequestHandler<RechazarLegali
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificacionService _notificacionService;
+    private readonly IEmpleadoRepository _empleadoRepository;
 
     public RechazarLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        INotificacionService notificacionService,
+        IEmpleadoRepository empleadoRepository)
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
+        _notificacionService = notificacionService;
+        _empleadoRepository = empleadoRepository;
     }
 
     public async Task<Result<LegalizacionDetalleDto>> Handle(RechazarLegalizacionCommand request, CancellationToken cancellationToken)
@@ -234,7 +292,12 @@ public class RechazarLegalizacionCommandHandler : IRequestHandler<RechazarLegali
             _legalizacionRepository,
             _documentoRepository,
             _unitOfWork,
+            _notificacionService,
+            _empleadoRepository,
+            _currentUser,
             l => l.Rechazar(_currentUser.UserId, request.Comentario),
+            NotificacionTipos.Rechazada,
+            request.Comentario,
             cancellationToken);
     }
 }
@@ -246,19 +309,25 @@ public class ReabrirLegalizacionCommandHandler : IRequestHandler<ReabrirLegaliza
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificacionService _notificacionService;
+    private readonly IEmpleadoRepository _empleadoRepository;
 
     public ReabrirLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        INotificacionService notificacionService,
+        IEmpleadoRepository empleadoRepository)
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
+        _notificacionService = notificacionService;
+        _empleadoRepository = empleadoRepository;
     }
 
     public async Task<Result<LegalizacionDetalleDto>> Handle(ReabrirLegalizacionCommand request, CancellationToken cancellationToken)
@@ -276,7 +345,12 @@ public class ReabrirLegalizacionCommandHandler : IRequestHandler<ReabrirLegaliza
             _legalizacionRepository,
             _documentoRepository,
             _unitOfWork,
+            _notificacionService,
+            _empleadoRepository,
+            _currentUser,
             l => l.Reabrir(_currentUser.UserId),
+            NotificacionTipos.Reabierta,
+            null,
             cancellationToken);
     }
 }
@@ -288,19 +362,25 @@ public class EnviarNominaCommandHandler : IRequestHandler<EnviarNominaCommand, R
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificacionService _notificacionService;
+    private readonly IEmpleadoRepository _empleadoRepository;
 
     public EnviarNominaCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        INotificacionService notificacionService,
+        IEmpleadoRepository empleadoRepository)
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
+        _notificacionService = notificacionService;
+        _empleadoRepository = empleadoRepository;
     }
 
     public async Task<Result<LegalizacionDetalleDto>> Handle(EnviarNominaCommand request, CancellationToken cancellationToken)
@@ -318,7 +398,12 @@ public class EnviarNominaCommandHandler : IRequestHandler<EnviarNominaCommand, R
             _legalizacionRepository,
             _documentoRepository,
             _unitOfWork,
+            _notificacionService,
+            _empleadoRepository,
+            _currentUser,
             l => l.EnviarNomina(_currentUser.UserId),
+            NotificacionTipos.EnviadaNomina,
+            null,
             cancellationToken);
     }
 }
@@ -329,17 +414,23 @@ public class CerrarLegalizacionCommandHandler : IRequestHandler<CerrarLegalizaci
     private readonly IDocumentoRepository _documentoRepository;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificacionService _notificacionService;
+    private readonly IEmpleadoRepository _empleadoRepository;
 
     public CerrarLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
         ICurrentUserService currentUser,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        INotificacionService notificacionService,
+        IEmpleadoRepository empleadoRepository)
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
+        _notificacionService = notificacionService;
+        _empleadoRepository = empleadoRepository;
     }
 
     public async Task<Result<LegalizacionDetalleDto>> Handle(CerrarLegalizacionCommand request, CancellationToken cancellationToken)
@@ -352,7 +443,12 @@ public class CerrarLegalizacionCommandHandler : IRequestHandler<CerrarLegalizaci
             _legalizacionRepository,
             _documentoRepository,
             _unitOfWork,
+            _notificacionService,
+            _empleadoRepository,
+            _currentUser,
             l => l.Cerrar(_currentUser.UserId),
+            NotificacionTipos.Cerrada,
+            null,
             cancellationToken);
     }
 }

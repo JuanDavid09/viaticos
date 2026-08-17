@@ -1,17 +1,18 @@
 import { useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { LoginLogo } from "@/components/auth/LoginLogo";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { appRoutes } from "@/app/routes";
 import { useAuth } from "@/features/auth/AuthContext";
-import { demoUsers } from "@/features/auth/roleUtils";
-import { ApiError } from "@/types/auth";
+import { env } from "@/config/env";
+import { getApiErrorMessage } from "@/lib/apiErrorMessage";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const [email, setEmail] = useState("empleado@empresa.com");
-  const [password, setPassword] = useState("Cambiar123!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,30 +31,29 @@ export function LoginPage() {
         { replace: true },
       );
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError("No se pudo conectar con el servidor. Verifica que el API esté en ejecución.");
-      }
+      setError(getApiErrorMessage(err, "No se pudo conectar con el servidor."));
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  function fillDemoUser(userEmail: string, demoPassword: string) {
-    setEmail(userEmail);
-    setPassword(demoPassword);
-  }
-
   return (
     <div className="login-screen">
-      <section className="login-panel">
-        <p className="page-kicker">Acceso interno</p>
-        <h1 className="page-title">Legalización de viáticos</h1>
-        <p className="page-lead">
-          Ingresa con tu correo y contraseña. Si es tu primer acceso, el sistema te pedirá
-          definir una clave personal.
-        </p>
+      <section className="login-brand" aria-hidden="true">
+        <LoginLogo />
+        <p className="login-brand-tagline">{env.appTagline}</p>
+      </section>
+
+      <section className="login-panel" aria-labelledby="login-title">
+        <LoginLogo variant="compact" />
+
+        <div className="login-panel-header">
+          <h1 id="login-title" className="login-title">Iniciar sesión</h1>
+          <p className="login-subtitle">
+            Accede con tu correo corporativo. Si es tu primer ingreso, deberás definir
+            una contraseña personal.
+          </p>
+        </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
           <label htmlFor="email">Correo corporativo</label>
@@ -62,7 +62,7 @@ export function LoginPage() {
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="empleado@empresa.com"
+            placeholder="nombre.apellido@empresa.com"
             autoComplete="username"
             disabled={isSubmitting}
             required
@@ -84,28 +84,12 @@ export function LoginPage() {
             </p>
           ) : null}
 
-          <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+          <button className="btn btn-primary login-submit" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Ingresando…" : "Ingresar"}
           </button>
         </form>
 
-        <div className="login-demo">
-          <p className="login-hint">Usuarios demo del seed:</p>
-          <div className="login-demo-list">
-            {demoUsers.map((user) => (
-              <button
-                key={user.email}
-                type="button"
-                className="btn btn-ghost login-demo-btn"
-                disabled={isSubmitting}
-                onClick={() => fillDemoUser(user.email, user.password)}
-              >
-                {user.label}
-              </button>
-            ))}
-          </div>
-          <p className="login-hint">Admin: Admin123! · Demás usuarios: Cambiar123!</p>
-        </div>
+        <p className="login-footer">Acceso restringido a personal autorizado.</p>
       </section>
     </div>
   );

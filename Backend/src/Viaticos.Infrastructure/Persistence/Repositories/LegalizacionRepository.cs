@@ -59,6 +59,44 @@ internal class LegalizacionRepository : ILegalizacionRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<LegalizacionCalendarioEntry>> ListCalendarioAsync(
+        Guid? jefeId,
+        DateOnly? desde,
+        DateOnly? hasta,
+        CancellationToken cancellationToken = default)
+    {
+        var query =
+            from legalizacion in _context.Legalizaciones
+            join empleado in _context.Empleados on legalizacion.EmpleadoId equals empleado.Id
+            join moneda in _context.Monedas on legalizacion.MonedaId equals moneda.Id
+            where empleado.Activo
+            select new { legalizacion, empleado, moneda };
+
+        if (jefeId.HasValue)
+            query = query.Where(x => x.empleado.JefeId == jefeId.Value);
+
+        if (desde.HasValue)
+            query = query.Where(x => x.legalizacion.FechaFin >= desde.Value);
+
+        if (hasta.HasValue)
+            query = query.Where(x => x.legalizacion.FechaInicio <= hasta.Value);
+
+        var rows = await query
+            .OrderBy(x => x.legalizacion.FechaInicio)
+            .ThenBy(x => x.empleado.Apellido)
+            .ThenBy(x => x.empleado.Nombre)
+            .ToListAsync(cancellationToken);
+
+        return rows
+            .Select(x => new LegalizacionCalendarioEntry(
+                x.legalizacion,
+                $"{x.empleado.Nombre} {x.empleado.Apellido}".Trim(),
+                string.IsNullOrWhiteSpace(x.moneda.Simbolo)
+                    ? x.moneda.CodigoIso.Trim()
+                    : x.moneda.Simbolo.Trim()))
+            .ToList();
+    }
+
     public async Task<IReadOnlyList<LegalizacionHistorial>> GetHistorialAsync(
         Guid legalizacionId,
         CancellationToken cancellationToken = default)

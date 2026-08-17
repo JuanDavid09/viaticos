@@ -51,8 +51,7 @@ export function Sidebar({ id, onNavigate }: SidebarProps) {
       </nav>
 
       <div className="sidebar-footer">
-        MVP Viáticos
-        {env.apiBaseUrl ? ` · API ${env.apiBaseUrl}` : " · API vía proxy Vite"}
+        {env.appName}
       </div>
     </aside>
   );

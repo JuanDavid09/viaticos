@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Domain.Core.Entities;
+using Viaticos.Domain.Core.Enums;
 
 namespace Viaticos.Infrastructure.Persistence.Repositories;
 
@@ -39,6 +40,17 @@ internal class EmpleadoRepository : IEmpleadoRepository
             query = query.Where(e => e.Activo);
 
         return await query
+            .OrderBy(e => e.Nombre)
+            .ThenBy(e => e.Apellido)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Empleado>> ListActivosByRolAsync(
+        Rol rol,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Empleados
+            .Where(e => e.Activo && e.Rol == rol)
             .OrderBy(e => e.Nombre)
             .ThenBy(e => e.Apellido)
             .ToListAsync(cancellationToken);

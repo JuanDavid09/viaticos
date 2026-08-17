@@ -35,12 +35,17 @@ export function isEditable(estado: EstadoLegalizacion): boolean {
 
 export function formatMoney(amount: number, moneda?: Moneda | null): string {
   const symbol = moneda?.simbolo?.trim() || moneda?.codigoIso || "";
+  return formatMoneyWithSymbol(amount, symbol);
+}
+
+export function formatMoneyWithSymbol(amount: number, symbol?: string | null): string {
+  const trimmed = symbol?.trim() || "";
   const formatted = new Intl.NumberFormat("es-CO", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(amount);
 
-  return symbol ? `${symbol} ${formatted}` : formatted;
+  return trimmed ? `${trimmed} ${formatted}` : formatted;
 }
 
 export function formatDate(value: string): string {

@@ -4,6 +4,7 @@ using Viaticos.Api.Extensions;
 using Viaticos.Api.Middleware;
 using Viaticos.Application;
 using Viaticos.Infrastructure;
+using Viaticos.Infrastructure.Persistence;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -76,6 +77,8 @@ try
     builder.Services.AddViaticosHealthChecks(builder.Configuration);
 
     var app = builder.Build();
+
+    await DatabaseMigrationBootstrap.ApplyPendingMigrationsAsync(app.Services);
 
     app.UseSerilogRequestLogging();
     app.UseMiddleware<ExceptionHandlingMiddleware>();
