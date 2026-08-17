@@ -2,6 +2,9 @@
 -- Viáticos MVP — DROP ALL (solo desarrollo)
 -- ============================================================
 
+DROP VIEW IF EXISTS reportes.v_legalizacion_enriquecida CASCADE;
+DROP SCHEMA IF EXISTS reportes CASCADE;
+
 DROP VIEW IF EXISTS viaticos.v_gasto_activo CASCADE;
 DROP VIEW IF EXISTS viaticos.v_legalizacion_activa CASCADE;
 

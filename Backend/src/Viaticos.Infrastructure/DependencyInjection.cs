@@ -48,6 +48,7 @@ public static class DependencyInjection
         services.AddScoped<ICatalogoRepository, CatalogoRepository>();
         services.AddScoped<IDocumentoRepository, DocumentoRepository>();
         services.AddScoped<INotificacionRepository, NotificacionRepository>();
+        services.AddScoped<IReporteRepository, ReporteRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.Configure<MinioSettings>(configuration.GetSection(MinioSettings.SectionName));

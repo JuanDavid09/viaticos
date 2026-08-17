@@ -35,8 +35,12 @@
 \echo '>>> 010: Notificaciones'
 \i 010_notificaciones.sql
 
+\echo '>>> 011: Reportes (procedimientos almacenados)'
+\i 011_reportes.sql
+
 \echo ''
 \echo '=== MVP instalado exitosamente ==='
-\echo 'Schemas: core, viaticos, docs'
-\echo 'Tablas:  10'
+\echo 'Schemas: core, viaticos, docs, reportes'
+\echo 'Tablas:  11'
+\echo 'Reportes: 13 procedimientos en schema reportes'
 \echo ''

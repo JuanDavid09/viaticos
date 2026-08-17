@@ -12,6 +12,7 @@ import { LegalizacionesPage } from "@/pages/LegalizacionesPage";
 import { LegalizacionNuevaPage } from "@/pages/LegalizacionNuevaPage";
 import { LegalizacionDetallePage } from "@/pages/LegalizacionDetallePage";
 import { BandejasPage } from "@/pages/BandejasPage";
+import { ReportesPage } from "@/pages/ReportesPage";
 import { SoportesPage } from "@/pages/SoportesPage";
 import { UsuariosPage } from "@/pages/UsuariosPage";
 
@@ -48,6 +49,10 @@ export function AppRouter() {
 
             <Route element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.bandejas) ?? []} />}>
               <Route path={appRoutes.bandejas} element={<BandejasPage />} />
+            </Route>
+
+            <Route element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.reportes) ?? []} />}>
+              <Route path={appRoutes.reportes} element={<ReportesPage />} />
             </Route>
 
             <Route element={<RoleRoute allowedRoles={getRouteRoles(appRoutes.soportes) ?? []} />}>

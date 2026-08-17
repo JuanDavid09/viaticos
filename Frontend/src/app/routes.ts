@@ -7,6 +7,7 @@ export const appRoutes = {
   usuarios: "/usuarios",
   legalizaciones: "/legalizaciones",
   bandejas: "/bandejas",
+  reportes: "/reportes",
   soportes: "/soportes",
 } as const;
 
@@ -38,6 +39,12 @@ export const navItems: NavItem[] = [
     to: appRoutes.bandejas,
     label: "Bandejas",
     group: "Aprobación",
+    roles: ["JEFE_APROBADOR", "NOMINA", "ADMIN"],
+  },
+  {
+    to: appRoutes.reportes,
+    label: "Reportes",
+    group: "Análisis",
     roles: ["JEFE_APROBADOR", "NOMINA", "ADMIN"],
   },
   {

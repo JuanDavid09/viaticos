@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { FileText, FolderOpen, Home, Inbox, Users } from "lucide-react";
+import { BarChart3, FileText, FolderOpen, Home, Inbox, Users } from "lucide-react";
 import { getNavItemsForRole } from "@/app/routes";
 import { useAuth } from "@/features/auth/AuthContext";
 import { env } from "@/config/env";
@@ -8,6 +8,7 @@ const icons: Record<string, typeof Home> = {
   "/": Home,
   "/legalizaciones": FileText,
   "/bandejas": Inbox,
+  "/reportes": BarChart3,
   "/soportes": FolderOpen,
   "/usuarios": Users,
 };
