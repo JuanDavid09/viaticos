@@ -5,16 +5,22 @@ import { Topbar } from "@/components/layout/Topbar";
 import { LegalizacionForm } from "@/components/legalizaciones/LegalizacionForm";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { LoadingState } from "@/components/ui/LoadingState";
-import { createLegalizacion } from "@/api/legalizaciones";
+import { createLegalizacion, listEmpleadosAsignables } from "@/api/legalizaciones";
 import { appRoutes } from "@/app/routes";
+import { useAuth } from "@/features/auth/AuthContext";
 import { useCatalogos } from "@/features/legalizaciones/useCatalogos";
 import { parseLegalizacionRequest } from "@/features/legalizaciones/legalizacionUtils";
 import { getApiErrorMessage } from "@/lib/apiErrorMessage";
+import type { Empleado } from "@/types/empleado";
 import { emptyLegalizacionForm, type LegalizacionFormValues } from "@/types/legalizacion";
 
 export function LegalizacionNuevaPage() {
   const navigate = useNavigate();
+  const { hasRole } = useAuth();
+  const canAssignEmpleado = hasRole("JEFE_APROBADOR", "ADMIN");
   const { catalogos, isLoading: isLoadingCatalogos, error: catalogosError, reload } = useCatalogos();
+  const [empleadosAsignables, setEmpleadosAsignables] = useState<Empleado[] | null>(null);
+  const [isLoadingEmpleados, setIsLoadingEmpleados] = useState(canAssignEmpleado);
   const [form, setForm] = useState<LegalizacionFormValues>(() => {
     const initial = { ...emptyLegalizacionForm };
     const today = new Date().toISOString().slice(0, 10);
@@ -24,6 +30,35 @@ export function LegalizacionNuevaPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!canAssignEmpleado) {
+      setIsLoadingEmpleados(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadEmpleados() {
+      setIsLoadingEmpleados(true);
+      try {
+        const data = await listEmpleadosAsignables();
+        if (!cancelled) setEmpleadosAsignables(data);
+      } catch (err) {
+        if (!cancelled) {
+          setError(getApiErrorMessage(err, "No se pudo cargar la lista de empleados."));
+        }
+      } finally {
+        if (!cancelled) setIsLoadingEmpleados(false);
+      }
+    }
+
+    void loadEmpleados();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [canAssignEmpleado]);
 
   useEffect(() => {
     if (!catalogos || form.monedaId) return;
@@ -46,18 +81,27 @@ export function LegalizacionNuevaPage() {
     }
   }
 
+  const kicker = canAssignEmpleado ? "Supervisión" : "Empleado";
+  const pageLead = canAssignEmpleado
+    ? "Registra tu propio viaje o crea una legalización en borrador para un empleado de tu equipo."
+    : "Completa los datos del viaje. Podrás agregar gastos mientras la legalización esté en borrador.";
+
+  const submitLabel = form.empleadoId
+    ? "Crear para empleado"
+    : "Crear legalización";
+
+  const isLoadingForm = isLoadingCatalogos || (canAssignEmpleado && isLoadingEmpleados);
+
   return (
     <>
-      <Topbar title="Nueva legalización" kicker="Empleado" />
+      <Topbar title="Nueva legalización" kicker={kicker} />
       <main className="content">
         <Link className="back-link" to={appRoutes.legalizaciones}>
           <ArrowLeft size={16} />
           Volver al listado
         </Link>
 
-        <p className="page-lead">
-          Completa los datos del viaje. Podrás agregar gastos mientras la legalización esté en borrador.
-        </p>
+        <p className="page-lead">{pageLead}</p>
 
         {catalogosError ? (
           <ErrorBanner message={catalogosError} onRetry={() => void reload()} />
@@ -66,14 +110,16 @@ export function LegalizacionNuevaPage() {
 
         <article className="card card-form">
           <h3>Datos del viaje</h3>
-          {isLoadingCatalogos ? (
-            <LoadingState label="Cargando catálogos…" />
+          {isLoadingForm ? (
+            <LoadingState label="Cargando formulario…" />
           ) : (
             <LegalizacionForm
               form={form}
               catalogos={catalogos}
+              allowEmpleadoAsignacion={canAssignEmpleado}
+              empleadosAsignables={empleadosAsignables}
               isSubmitting={isSubmitting}
-              submitLabel="Crear legalización"
+              submitLabel={submitLabel}
               onChange={setForm}
               onSubmit={handleSubmit}
             />

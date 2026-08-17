@@ -32,7 +32,7 @@ export const navItems: NavItem[] = [
     to: appRoutes.legalizaciones,
     label: "Mis legalizaciones",
     group: "Empleado",
-    roles: ["EMPLEADO", "ADMIN"],
+    roles: ["EMPLEADO", "JEFE_APROBADOR", "ADMIN"],
   },
   {
     to: appRoutes.bandejas,

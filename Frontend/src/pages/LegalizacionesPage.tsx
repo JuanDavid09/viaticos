@@ -7,10 +7,13 @@ import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { listMisLegalizaciones } from "@/api/legalizaciones";
 import { appRoutes } from "@/app/routes";
+import { useAuth } from "@/features/auth/AuthContext";
 import { getApiErrorMessage } from "@/lib/apiErrorMessage";
 import type { LegalizacionResumen } from "@/types/legalizacion";
 
 export function LegalizacionesPage() {
+  const { hasRole } = useAuth();
+  const canAssignEmpleado = hasRole("JEFE_APROBADOR", "ADMIN");
   const [items, setItems] = useState<LegalizacionResumen[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,13 +35,18 @@ export function LegalizacionesPage() {
     void loadData();
   }, [loadData]);
 
+  const kicker = canAssignEmpleado ? "Supervisión" : "Empleado";
+  const pageLead = canAssignEmpleado
+    ? "Consulta tus legalizaciones propias o crea una nueva para ti o para un empleado de tu equipo."
+    : "Registra tus viajes, agrega gastos en borrador y prepáralos para el flujo de aprobación.";
+
   return (
     <>
-      <Topbar title="Mis legalizaciones" kicker="Empleado" />
+      <Topbar title="Mis legalizaciones" kicker={kicker} />
       <main className="content">
         <div className="page-toolbar">
           <p className="page-lead" style={{ marginBottom: 0 }}>
-            Registra tus viajes, agrega gastos en borrador y prepáralos para el flujo de aprobación.
+            {pageLead}
           </p>
           <Link className="btn btn-primary" to={`${appRoutes.legalizaciones}/nueva`}>
             <Plus size={16} />

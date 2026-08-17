@@ -29,23 +29,25 @@ export function Topbar({ title, kicker }: TopbarProps) {
       {session ? (
         <div className="topbar-actions">
           <div className="topbar-toolbar">
-            <NotificationBell />
+            <div className="topbar-toolbar-cluster">
+              <NotificationBell />
 
-            <span className="topbar-divider" aria-hidden="true" />
+              <span className="topbar-divider topbar-divider-inline" aria-hidden="true" />
 
-            <div className="topbar-user-card" title={session.email}>
-              <span className="avatar avatar-lg topbar-avatar" aria-hidden="true">
-                {getInitials(session.nombreCompleto)}
-              </span>
-              <div className="topbar-user-meta">
-                <strong>{session.nombreCompleto}</strong>
-                <span className="topbar-user-email">{session.email}</span>
-                <span className="topbar-user-role">{getRoleLabel(session.rol)}</span>
+              <div className="topbar-user-card" title={session.email}>
+                <span className="avatar avatar-lg topbar-avatar" aria-hidden="true">
+                  {getInitials(session.nombreCompleto)}
+                </span>
+                <div className="topbar-user-meta">
+                  <strong>{session.nombreCompleto}</strong>
+                  <span className="topbar-user-email">{session.email}</span>
+                  <span className="topbar-user-role">{getRoleLabel(session.rol)}</span>
+                </div>
+                <span className="topbar-status-dot" title="Sesión activa" aria-hidden="true" />
               </div>
-              <span className="topbar-status-dot" title="Sesión activa" aria-hidden="true" />
             </div>
 
-            <span className="topbar-divider" aria-hidden="true" />
+            <span className="topbar-divider topbar-divider-block" aria-hidden="true" />
 
             <button
               type="button"

@@ -33,6 +33,9 @@ public interface IEmpleadoRepository
     Task<IReadOnlyList<Domain.Core.Entities.Empleado>> ListActivosByRolAsync(
         Domain.Core.Enums.Rol rol,
         CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Domain.Core.Entities.Empleado>> ListAsignablesLegalizacionAsync(
+        Guid? jefeId,
+        CancellationToken cancellationToken = default);
     Task<bool> ExistsByEmailAsync(string email, Guid? excludeId = null, CancellationToken cancellationToken = default);
     Task<bool> ExistsByCodigoAsync(string codigoEmpleado, Guid? excludeId = null, CancellationToken cancellationToken = default);
     Task AddAsync(Domain.Core.Entities.Empleado empleado, CancellationToken cancellationToken = default);

@@ -79,6 +79,7 @@ export type CrearLegalizacionRequest = {
   monedaId: string;
   montoAnticipo: number;
   destino?: string;
+  empleadoId?: string;
 };
 
 export type ActualizarLegalizacionRequest = CrearLegalizacionRequest;
@@ -115,6 +116,7 @@ export type WorkflowAction =
   | "cerrar";
 
 export type LegalizacionFormValues = {
+  empleadoId: string;
   motivo: string;
   destino: string;
   fechaInicio: string;
@@ -133,6 +135,7 @@ export type GastoFormValues = {
 };
 
 export const emptyLegalizacionForm: LegalizacionFormValues = {
+  empleadoId: "",
   motivo: "",
   destino: "",
   fechaInicio: "",

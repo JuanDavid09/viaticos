@@ -14,7 +14,8 @@ public record CrearLegalizacionCommand(
     DateOnly FechaFin,
     Guid MonedaId,
     decimal MontoAnticipo,
-    string? Destino) : IRequest<Result<LegalizacionDetalleDto>>;
+    string? Destino,
+    Guid? EmpleadoId = null) : IRequest<Result<LegalizacionDetalleDto>>;
 
 public class CrearLegalizacionCommandValidator : AbstractValidator<CrearLegalizacionCommand>
 {
@@ -25,6 +26,7 @@ public class CrearLegalizacionCommandValidator : AbstractValidator<CrearLegaliza
         RuleFor(x => x.MonedaId).NotEmpty();
         RuleFor(x => x.MontoAnticipo).GreaterThanOrEqualTo(0);
         RuleFor(x => x.Destino).MaximumLength(200);
+        RuleFor(x => x.EmpleadoId).NotEqual(Guid.Empty);
     }
 }
 
@@ -32,6 +34,7 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IEmpleadoRepository _empleadoRepository;
+    private readonly ILegalizacionWorkflowService _workflow;
     private readonly INotificacionService _notificacionService;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
@@ -39,12 +42,14 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
     public CrearLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IEmpleadoRepository empleadoRepository,
+        ILegalizacionWorkflowService workflow,
         INotificacionService notificacionService,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork)
     {
         _legalizacionRepository = legalizacionRepository;
         _empleadoRepository = empleadoRepository;
+        _workflow = workflow;
         _notificacionService = notificacionService;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
@@ -52,10 +57,17 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
 
     public async Task<Result<LegalizacionDetalleDto>> Handle(CrearLegalizacionCommand request, CancellationToken cancellationToken)
     {
+        var targetEmpleadoId = request.EmpleadoId ?? _currentUser.UserId;
+        var auth = await ResolveTargetEmpleadoAsync(targetEmpleadoId, cancellationToken);
+        if (!auth.IsSuccess)
+            return Result<LegalizacionDetalleDto>.Failure(auth.ErrorCode!, auth.Error!);
+
+        var targetEmpleado = auth.Value!;
+
         try
         {
             var legalizacion = Legalizacion.Crear(
-                _currentUser.UserId,
+                targetEmpleadoId,
                 request.Motivo,
                 request.FechaInicio,
                 request.FechaFin,
@@ -68,10 +80,7 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var persisted = await _legalizacionRepository.GetByIdAsync(legalizacion.Id, cancellationToken);
-            var empleado = await _empleadoRepository.GetByIdAsync(_currentUser.UserId, cancellationToken);
-            var empleadoNombre = empleado is null
-                ? "Empleado"
-                : $"{empleado.Nombre} {empleado.Apellido}".Trim();
+            var empleadoNombre = $"{targetEmpleado.Nombre} {targetEmpleado.Apellido}".Trim();
 
             await _notificacionService.NotificarLegalizacionCreadaAsync(
                 persisted!,
@@ -85,5 +94,36 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
         {
             return Result<LegalizacionDetalleDto>.Failure(ex.Code, ex.Message);
         }
+    }
+
+    private async Task<Result<Domain.Core.Entities.Empleado>> ResolveTargetEmpleadoAsync(
+        Guid targetEmpleadoId,
+        CancellationToken cancellationToken)
+    {
+        var targetEmpleado = await _empleadoRepository.GetByIdAsync(targetEmpleadoId, cancellationToken);
+        if (targetEmpleado is null)
+            return Result<Domain.Core.Entities.Empleado>.Failure("NOT_FOUND", "Empleado no encontrado.");
+
+        if (targetEmpleadoId == _currentUser.UserId)
+            return Result<Domain.Core.Entities.Empleado>.Success(targetEmpleado);
+
+        if (_currentUser.IsInRole("Admin"))
+            return Result<Domain.Core.Entities.Empleado>.Success(targetEmpleado);
+
+        if (_currentUser.IsInRole("JefeAprobador"))
+        {
+            if (targetEmpleado.JefeId != _currentUser.UserId)
+            {
+                return Result<Domain.Core.Entities.Empleado>.Failure(
+                    "FORBIDDEN",
+                    "Solo puede crear legalizaciones para empleados de su equipo.");
+            }
+
+            return Result<Domain.Core.Entities.Empleado>.Success(targetEmpleado);
+        }
+
+        return Result<Domain.Core.Entities.Empleado>.Failure(
+            "FORBIDDEN",
+            "No tiene permiso para crear legalizaciones para otro empleado.");
     }
 }

@@ -56,6 +56,22 @@ internal class EmpleadoRepository : IEmpleadoRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Empleado>> ListAsignablesLegalizacionAsync(
+        Guid? jefeId,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Empleados
+            .Where(e => e.Activo && e.Rol != Rol.Admin);
+
+        if (jefeId.HasValue)
+            query = query.Where(e => e.JefeId == jefeId.Value);
+
+        return await query
+            .OrderBy(e => e.Apellido)
+            .ThenBy(e => e.Nombre)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> ExistsByEmailAsync(
         string email,
         Guid? excludeId = null,

@@ -115,12 +115,6 @@ export function HomePage() {
 
         {error ? <ErrorBanner message={error} onRetry={() => void loadData()} /> : null}
 
-        {showTeamCalendar ? (
-          <section className="dashboard-calendar-section">
-            <ViaticosCalendar scopeLabel={calendarScopeLabel} />
-          </section>
-        ) : null}
-
         {isLoading ? <LoadingState label="Cargando panel…" skeletonRows={3} /> : null}
 
         {!isLoading ? (
@@ -231,6 +225,12 @@ export function HomePage() {
                     </Link>
                   </article>
                 ) : null}
+              </section>
+            ) : null}
+
+            {showTeamCalendar ? (
+              <section className="dashboard-calendar-section">
+                <ViaticosCalendar scopeLabel={calendarScopeLabel} />
               </section>
             ) : null}
           </>

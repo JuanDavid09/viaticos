@@ -75,6 +75,7 @@ export function legalizacionToFormValues(
   >,
 ): import("@/types/legalizacion").LegalizacionFormValues {
   return {
+    empleadoId: "",
     motivo: legalizacion.motivo,
     destino: legalizacion.destino ?? "",
     fechaInicio: toApiDateInput(legalizacion.fechaInicio),
@@ -94,6 +95,7 @@ export function parseLegalizacionRequest(
     fechaFin: form.fechaFin,
     monedaId: form.monedaId,
     montoAnticipo: Number(form.montoAnticipo) || 0,
+    empleadoId: form.empleadoId.trim() || undefined,
   };
 }
 

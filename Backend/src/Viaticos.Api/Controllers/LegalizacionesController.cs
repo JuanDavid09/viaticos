@@ -24,6 +24,14 @@ public class LegalizacionesController : ApiControllerBase
         return FromResult(result);
     }
 
+    [HttpGet("empleados-asignables")]
+    [Authorize(Policy = Infrastructure.Identity.AuthPolicies.Jefe)]
+    public async Task<IActionResult> ListarEmpleadosAsignables(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ListarEmpleadosAsignablesQuery(), cancellationToken);
+        return FromResult(result);
+    }
+
     [HttpGet("calendario")]
     [Authorize(Policy = Infrastructure.Identity.AuthPolicies.Jefe)]
     public async Task<IActionResult> ListarCalendario(
@@ -51,7 +59,8 @@ public class LegalizacionesController : ApiControllerBase
             request.FechaFin,
             request.MonedaId,
             request.MontoAnticipo,
-            request.Destino);
+            request.Destino,
+            request.EmpleadoId);
 
         var result = await _mediator.Send(command, cancellationToken);
         return FromResult(result);
@@ -164,7 +173,8 @@ public record CrearLegalizacionRequest(
     DateOnly FechaFin,
     Guid MonedaId,
     decimal MontoAnticipo,
-    string? Destino);
+    string? Destino,
+    Guid? EmpleadoId = null);
 
 public record ActualizarLegalizacionRequest(
     string Motivo,

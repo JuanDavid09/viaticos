@@ -1,10 +1,13 @@
 import type { FormEvent } from "react";
 import type { Catalogos } from "@/types/catalogos";
+import type { Empleado } from "@/types/empleado";
 import type { LegalizacionFormValues } from "@/types/legalizacion";
 
 type LegalizacionFormProps = {
   form: LegalizacionFormValues;
   catalogos: Catalogos | null;
+  allowEmpleadoAsignacion?: boolean;
+  empleadosAsignables?: Empleado[] | null;
   isSubmitting: boolean;
   submitLabel: string;
   onChange: (form: LegalizacionFormValues) => void;
@@ -14,6 +17,8 @@ type LegalizacionFormProps = {
 export function LegalizacionForm({
   form,
   catalogos,
+  allowEmpleadoAsignacion = false,
+  empleadosAsignables,
   isSubmitting,
   submitLabel,
   onChange,
@@ -21,6 +26,26 @@ export function LegalizacionForm({
 }: LegalizacionFormProps) {
   return (
     <form className="stack-form" onSubmit={onSubmit}>
+      {allowEmpleadoAsignacion ? (
+        <label htmlFor="legalizacion-empleado">
+          Titular de la legalización
+          <select
+            id="legalizacion-empleado"
+            value={form.empleadoId}
+            onChange={(event) => onChange({ ...form, empleadoId: event.target.value })}
+            disabled={isSubmitting}
+          >
+            <option value="">Para mí (mi legalización)</option>
+            {empleadosAsignables?.map((empleado) => (
+              <option key={empleado.id} value={empleado.id}>
+                {empleado.nombreCompleto}
+                {empleado.departamento ? ` — ${empleado.departamento}` : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+
       <label htmlFor="legalizacion-motivo">
         Motivo del viaje
         <textarea

@@ -29,10 +29,37 @@ public class NotificacionService : INotificacionService
         CancellationToken cancellationToken = default)
     {
         var referencia = BuildReferencia(legalizacion);
+        var actor = await _empleadoRepository.GetByIdAsync(actorId, cancellationToken);
+        var actorNombre = actor is null
+            ? "Un supervisor"
+            : $"{actor.Nombre} {actor.Apellido}".Trim();
+        var rangoViaje =
+            $"Viaje del {FormatDate(legalizacion.FechaInicio)} al {FormatDate(legalizacion.FechaFin)}.";
+
+        if (actorId != legalizacion.EmpleadoId)
+        {
+            await DispatchAsync(
+                new[] { legalizacion.EmpleadoId },
+                NotificacionTipos.LegalizacionCreada,
+                "Legalización creada para ti",
+                $"{actorNombre} creó la legalización {referencia} ({legalizacion.Motivo}) a tu nombre. {rangoViaje}",
+                legalizacion.Id,
+                cancellationToken);
+
+            await DispatchAsync(
+                await BuildSupervisoresRecipients(legalizacion.EmpleadoId, actorId, cancellationToken),
+                NotificacionTipos.LegalizacionCreada,
+                "Legalización creada para empleado",
+                $"{actorNombre} creó la legalización {referencia} para {empleadoNombre} ({legalizacion.Motivo}). {rangoViaje}",
+                legalizacion.Id,
+                cancellationToken);
+
+            return;
+        }
+
         var titulo = "Nueva legalización creada";
         var mensaje =
-            $"{empleadoNombre} creó la legalización {referencia} ({legalizacion.Motivo}). " +
-            $"Viaje del {FormatDate(legalizacion.FechaInicio)} al {FormatDate(legalizacion.FechaFin)}.";
+            $"{empleadoNombre} creó la legalización {referencia} ({legalizacion.Motivo}). {rangoViaje}";
 
         await DispatchAsync(
             await BuildSupervisoresRecipients(legalizacion.EmpleadoId, actorId, cancellationToken),

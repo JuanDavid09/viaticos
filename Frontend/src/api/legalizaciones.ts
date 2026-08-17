@@ -1,4 +1,5 @@
 import { apiRequest } from "@/api/http";
+import type { Empleado } from "@/types/empleado";
 import type {
   ActualizarLegalizacionRequest,
   AgregarGastoRequest,
@@ -12,6 +13,10 @@ import type {
 
 export async function listMisLegalizaciones(): Promise<LegalizacionResumen[]> {
   return apiRequest<LegalizacionResumen[]>("/api/legalizaciones");
+}
+
+export async function listEmpleadosAsignables(): Promise<Empleado[]> {
+  return apiRequest<Empleado[]>("/api/legalizaciones/empleados-asignables");
 }
 
 export async function listCalendarioLegalizaciones(params?: {

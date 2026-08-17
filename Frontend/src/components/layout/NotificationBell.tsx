@@ -82,7 +82,14 @@ export function NotificationBell() {
       </button>
 
       {isOpen ? (
-        <div className="notification-panel" role="dialog" aria-label="Notificaciones">
+        <>
+          <button
+            type="button"
+            className="notification-backdrop"
+            aria-label="Cerrar notificaciones"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="notification-panel" role="dialog" aria-label="Notificaciones">
           <div className="notification-panel-header">
             <div>
               <strong>Notificaciones</strong>
@@ -142,7 +149,8 @@ export function NotificationBell() {
               Ir al inicio
             </Link>
           </div>
-        </div>
+          </div>
+        </>
       ) : null}
     </div>
   );

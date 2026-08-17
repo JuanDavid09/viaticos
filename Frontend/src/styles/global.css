@@ -826,11 +826,23 @@ button {
   backdrop-filter: blur(8px);
 }
 
+.topbar-toolbar-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
 .topbar-divider {
   width: 1px;
   height: 34px;
   background: linear-gradient(180deg, transparent, var(--color-border), transparent);
   flex-shrink: 0;
+}
+
+.topbar-divider-block {
+  display: block;
 }
 
 .topbar-notification {
@@ -872,6 +884,10 @@ button {
 
   .notification-bell-wrap {
     position: relative;
+  }
+
+  .notification-backdrop {
+    display: none;
   }
 
   .notification-panel {
@@ -1129,7 +1145,7 @@ button {
 
 .dashboard-stats {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
   gap: 14px;
   margin-bottom: 20px;
 }
@@ -1291,7 +1307,7 @@ button {
 }
 
 .dashboard-calendar-section {
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .viaticos-calendar h3 {
@@ -1926,6 +1942,18 @@ textarea:focus-visible,
     padding-right: 18px;
   }
 
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .topbar-title {
+    font-size: 1.2rem;
+  }
+
   .page-toolbar,
   .detail-header,
   .workflow-actions,
@@ -1935,12 +1963,140 @@ textarea:focus-visible,
     align-items: stretch;
   }
 
+  .dashboard-hero .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dashboard-section-header {
+    flex-wrap: wrap;
+  }
+
+  .dashboard-list-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .dashboard-list-action,
+  .dashboard-list-item .row-summary {
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .dashboard-stat-value {
+    font-size: 1.55rem;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
   .topbar-actions {
     width: 100%;
   }
 
+  .topbar-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px;
+  }
+
+  .topbar-toolbar-cluster {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .topbar-divider-inline {
+    display: none;
+  }
+
+  .topbar-divider-block {
+    display: none;
+  }
+
+  .topbar-user-card {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    padding: 4px 8px 4px 4px;
+  }
+
+  .topbar-user-email {
+    display: none;
+  }
+
+  .topbar-status-dot {
+    display: none;
+  }
+
+  .topbar-logout-btn {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .topbar-logout-label {
+    display: none;
+  }
+
+  .notification-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 180;
+    border: 0;
+    padding: 0;
+    background: rgba(15, 35, 36, 0.45);
+    cursor: pointer;
+  }
+
+  .notification-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    width: min(420px, calc(100vw - 28px));
+    max-height: min(78vh, 560px);
+    z-index: 190;
+    box-shadow: 0 24px 48px rgba(15, 35, 36, 0.22);
+  }
+
+  .notification-panel-header {
+    flex-wrap: wrap;
+  }
+
+  .notification-mark-all {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .notification-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .notification-time {
+    white-space: normal;
+  }
+
+  .notification-list {
+    max-height: min(52vh, 420px);
+  }
+
   .dashboard-stats {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .viaticos-calendar-header,
@@ -1963,39 +2119,24 @@ textarea:focus-visible,
     flex-wrap: wrap;
   }
 
+  .viaticos-calendar-month {
+    min-width: 0;
+    flex: 1 1 120px;
+  }
+
+  .viaticos-calendar-day {
+    min-height: 64px;
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .viaticos-calendar-grid,
+  .viaticos-calendar-weekdays {
+    gap: 6px;
+  }
+
   .viaticos-calendar-metrics {
-    grid-template-columns: 1fr;
-  }
-
-  .topbar-toolbar {
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px;
-  }
-
-  .topbar-divider {
-    display: none;
-  }
-
-  .topbar-user-card {
-    order: 1;
-    width: 100%;
-    max-width: none;
-    padding-right: 28px;
-  }
-
-  .topbar-notification {
-    order: 2;
-  }
-
-  .topbar-logout-btn {
-    order: 3;
-  }
-
-  .topbar-logout-label {
-    display: none;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .workflow-actions-buttons,
@@ -2032,6 +2173,116 @@ textarea:focus-visible,
 
   .login-panel .login-logo-compact {
     display: flex;
+  }
+}
+
+@media (max-width: 640px) {
+  .content,
+  .topbar {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .topbar-toolbar {
+    padding: 6px;
+    border-radius: 16px;
+  }
+
+  .topbar-user-meta strong {
+    font-size: 0.84rem;
+  }
+
+  .topbar-user-role {
+    font-size: 0.62rem;
+    padding: 1px 6px;
+  }
+
+  .avatar-lg.topbar-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.82rem;
+  }
+
+  .topbar-notification {
+    width: 38px;
+    height: 38px;
+  }
+
+  .topbar-logout-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .dashboard-greeting {
+    font-size: 1.45rem;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .viaticos-calendar-weekdays span {
+    font-size: 0;
+    letter-spacing: 0;
+  }
+
+  .viaticos-calendar-weekdays span::first-letter {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .viaticos-calendar-day {
+    min-height: 46px;
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .viaticos-calendar-day-number {
+    font-size: 0.76rem;
+  }
+
+  .viaticos-calendar-event-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .viaticos-calendar-more {
+    font-size: 0.6rem;
+  }
+
+  .viaticos-calendar-nav-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .viaticos-calendar-nav .btn-ghost:not(.viaticos-calendar-nav-btn) {
+    padding-inline: 10px;
+    font-size: 0.82rem;
+  }
+
+  .viaticos-calendar-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .viaticos-calendar-event-card .row-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-quick-card .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .error-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .error-retry {
+    width: 100%;
+    justify-content: center;
   }
 }
 
