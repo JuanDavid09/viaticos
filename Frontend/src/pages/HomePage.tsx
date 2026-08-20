@@ -31,7 +31,7 @@ export function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const showEmployeeDashboard = hasRole("EMPLEADO", "ADMIN");
+  const showEmployeeDashboard = hasRole("EMPLEADO", "JEFE_APROBADOR", "ADMIN");
   const showBandejaJefe = hasRole("JEFE_APROBADOR", "ADMIN");
   const showBandejaNomina = hasRole("NOMINA", "ADMIN");
   const showTeamCalendar = hasRole("JEFE_APROBADOR", "ADMIN");
@@ -41,39 +41,49 @@ export function HomePage() {
     setIsLoading(true);
     setError(null);
 
-    try {
-      const requests: Promise<void>[] = [];
+    const tasks: Promise<{ ok: true } | { ok: false; message: string }>[] = [];
 
-      if (showEmployeeDashboard) {
-        requests.push(
-          listMisLegalizaciones().then((data) => {
+    if (showEmployeeDashboard) {
+      tasks.push(
+        listMisLegalizaciones()
+          .then((data) => {
             setLegalizaciones(data);
-          }),
-        );
-      }
-
-      if (showBandejaJefe) {
-        requests.push(
-          listPendientesAprobacion().then((data) => {
-            setPendientesAprobacion(data.length);
-          }),
-        );
-      }
-
-      if (showBandejaNomina) {
-        requests.push(
-          listPendientesNomina().then((data) => {
-            setPendientesNomina(data.length);
-          }),
-        );
-      }
-
-      await Promise.all(requests);
-    } catch (err) {
-      setError(getApiErrorMessage(err, "No se pudo cargar el panel."));
-    } finally {
-      setIsLoading(false);
+            return { ok: true as const };
+          })
+          .catch((err) => ({ ok: false as const, message: getApiErrorMessage(err) })),
+      );
     }
+
+    if (showBandejaJefe) {
+      tasks.push(
+        listPendientesAprobacion()
+          .then((data) => {
+            setPendientesAprobacion(data.length);
+            return { ok: true as const };
+          })
+          .catch((err) => ({ ok: false as const, message: getApiErrorMessage(err) })),
+      );
+    }
+
+    if (showBandejaNomina) {
+      tasks.push(
+        listPendientesNomina()
+          .then((data) => {
+            setPendientesNomina(data.length);
+            return { ok: true as const };
+          })
+          .catch((err) => ({ ok: false as const, message: getApiErrorMessage(err) })),
+      );
+    }
+
+    const results = await Promise.all(tasks);
+    const failures = results.filter((result): result is { ok: false; message: string } => !result.ok);
+
+    if (failures.length > 0) {
+      setError(failures[0].message);
+    }
+
+    setIsLoading(false);
   }, [showEmployeeDashboard, showBandejaJefe, showBandejaNomina]);
 
   useEffect(() => {

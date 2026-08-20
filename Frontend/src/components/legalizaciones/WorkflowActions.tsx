@@ -42,7 +42,9 @@ export function WorkflowActions({
 }: WorkflowActionsProps) {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<WorkflowAction | null>(null);
-  const actions = getAvailableWorkflowActions(legalizacion, rol, userId);
+  const actions =
+    legalizacion.accionesDisponibles ??
+    getAvailableWorkflowActions(legalizacion, rol, userId);
 
   if (actions.length === 0) {
     return null;

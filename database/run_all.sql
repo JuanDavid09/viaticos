@@ -38,6 +38,9 @@
 \echo '>>> 011: Reportes (procedimientos almacenados)'
 \i 011_reportes.sql
 
+\echo '>>> 012: Backfill jefe_id empleados'
+\i 012_empleado_jefe_backfill.sql
+
 \echo ''
 \echo '=== MVP instalado exitosamente ==='
 \echo 'Schemas: core, viaticos, docs, reportes'

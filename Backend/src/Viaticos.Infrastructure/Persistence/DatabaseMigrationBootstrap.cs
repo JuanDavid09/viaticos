@@ -60,6 +60,41 @@ public static class DatabaseMigrationBootstrap
         {
             logger.LogDebug("Schema reportes verificado.");
         }
+
+        await BackfillEmpleadosSinJefeAsync(context, logger);
+    }
+
+    private const string BackfillEmpleadosSinJefeSql = """
+        UPDATE core.empleado AS e
+        SET jefe_id = j.id,
+            updated_at = NOW()
+        FROM core.empleado AS j
+        WHERE e.rol = 'EMPLEADO'
+          AND e.jefe_id IS NULL
+          AND e.activo = TRUE
+          AND j.rol IN ('JEFE_APROBADOR', 'ADMIN')
+          AND j.activo = TRUE
+          AND j.id = (
+              SELECT j2.id
+              FROM core.empleado j2
+              WHERE j2.rol = 'JEFE_APROBADOR'
+                AND j2.activo = TRUE
+              ORDER BY j2.created_at
+              LIMIT 1
+          );
+        """;
+
+    private static async Task BackfillEmpleadosSinJefeAsync(
+        ViaticosDbContext context,
+        ILogger logger)
+    {
+        var updated = await context.Database.ExecuteSqlRawAsync(BackfillEmpleadosSinJefeSql);
+        if (updated > 0)
+        {
+            logger.LogWarning(
+                "Se asignó jefe_id automáticamente a {Count} empleado(s) que no tenían jefe. Revise core.empleado.",
+                updated);
+        }
     }
 
     private static string? ResolveReportesSqlPath()

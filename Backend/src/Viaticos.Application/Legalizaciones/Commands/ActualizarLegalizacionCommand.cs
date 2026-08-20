@@ -3,6 +3,7 @@ using MediatR;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Application.Common.Models;
 using Viaticos.Application.Legalizaciones.DTOs;
+using Viaticos.Application.Legalizaciones.Services;
 using Viaticos.Domain.Common;
 
 namespace Viaticos.Application.Legalizaciones.Commands;
@@ -32,15 +33,18 @@ public class ActualizarLegalizacionCommandValidator : AbstractValidator<Actualiz
 public class ActualizarLegalizacionCommandHandler : IRequestHandler<ActualizarLegalizacionCommand, Result<LegalizacionDetalleDto>>
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
 
     public ActualizarLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork)
     {
         _legalizacionRepository = legalizacionRepository;
+        _detalleFactory = detalleFactory;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
     }
@@ -69,7 +73,8 @@ public class ActualizarLegalizacionCommandHandler : IRequestHandler<ActualizarLe
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var updated = await _legalizacionRepository.GetByIdAsync(request.Id, cancellationToken);
-            return Result<LegalizacionDetalleDto>.Success(LegalizacionMapper.ToDetalle(updated!));
+            return Result<LegalizacionDetalleDto>.Success(
+                await _detalleFactory.CreateAsync(updated!, cancellationToken: cancellationToken));
         }
         catch (DomainException ex)
         {

@@ -43,7 +43,7 @@ export function LegalizacionesPage() {
   return (
     <>
       <Topbar title="Mis legalizaciones" kicker={kicker} />
-      <main className="content">
+      <main className="content legalizaciones-page">
         <div className="page-toolbar">
           <p className="page-lead" style={{ marginBottom: 0 }}>
             {pageLead}

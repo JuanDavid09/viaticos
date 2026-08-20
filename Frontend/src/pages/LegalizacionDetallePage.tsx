@@ -203,8 +203,7 @@ export function LegalizacionDetallePage() {
   const moneda = legalizacion ? findMoneda(catalogos, legalizacion.monedaId) : null;
   const editable =
     legalizacion && session
-      ? isEditable(legalizacion.estado) &&
-        (legalizacion.empleadoId === session.userId || hasRole("ADMIN"))
+      ? isEditable(legalizacion.estado) && legalizacion.empleadoId === session.userId
       : false;
   const canEditGastos = editable && legalizacion?.estado === "Borrador";
   const canEditSoportes =
@@ -223,7 +222,7 @@ export function LegalizacionDetallePage() {
         title={legalizacion?.numero ?? "Detalle"}
         kicker="Legalización"
       />
-      <main className="content">
+      <main className="content legalizacion-detail-page">
         <Link className="back-link" to={backTo}>
           <ArrowLeft size={16} />
           {backLabel}

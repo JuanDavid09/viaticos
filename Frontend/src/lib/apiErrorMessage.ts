@@ -2,6 +2,7 @@ import { ApiError } from "@/types/auth";
 
 const codeMessages: Record<string, string> = {
   UNAUTHORIZED: "Tu sesión expiró. Vuelve a iniciar sesión.",
+  MUST_CHANGE_PASSWORD: "Debes cambiar tu contraseña antes de continuar.",
   FORBIDDEN: "No tienes permiso para realizar esta acción.",
   NOT_FOUND: "El recurso solicitado no existe o ya no está disponible.",
   INVALID_CREDENTIALS: "Correo o contraseña incorrectos.",

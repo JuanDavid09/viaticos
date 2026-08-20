@@ -95,7 +95,7 @@ export function LegalizacionNuevaPage() {
   return (
     <>
       <Topbar title="Nueva legalización" kicker={kicker} />
-      <main className="content">
+      <main className="content legalizacion-nueva-page">
         <Link className="back-link" to={appRoutes.legalizaciones}>
           <ArrowLeft size={16} />
           Volver al listado

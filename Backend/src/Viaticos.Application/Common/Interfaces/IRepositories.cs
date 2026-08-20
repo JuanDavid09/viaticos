@@ -12,7 +12,7 @@ public interface ILegalizacionRepository
     Task<Legalizacion?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Legalizacion?> GetByGastoIdAsync(Guid gastoId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Legalizacion>> ListByEmpleadoAsync(Guid empleadoId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Legalizacion>> ListPendientesAprobacionByJefeAsync(Guid jefeId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Legalizacion>> ListPendientesAprobacionAsync(Guid? jefeId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Legalizacion>> ListPendientesNominaAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<LegalizacionCalendarioEntry>> ListCalendarioAsync(
         Guid? jefeId,
@@ -22,6 +22,17 @@ public interface ILegalizacionRepository
     Task<IReadOnlyList<LegalizacionHistorial>> GetHistorialAsync(Guid legalizacionId, CancellationToken cancellationToken = default);
     Task AddAsync(Legalizacion legalizacion, CancellationToken cancellationToken = default);
     void Update(Legalizacion legalizacion);
+    Task<Gasto> AddGastoAsync(
+        Legalizacion legalizacion,
+        Guid categoriaGastoId,
+        DateOnly fechaGasto,
+        string descripcion,
+        decimal monto,
+        Guid createdBy,
+        string? proveedor,
+        string? numeroDocumento,
+        CancellationToken cancellationToken = default);
+    Task PersistWorkflowTransitionAsync(Legalizacion legalizacion, CancellationToken cancellationToken = default);
 }
 
 public interface IEmpleadoRepository

@@ -67,7 +67,8 @@ public record LegalizacionDetalleDto(
     decimal TotalReembolso,
     decimal TotalDevolucion,
     string? Observaciones,
-    IReadOnlyList<GastoDto> Gastos);
+    IReadOnlyList<GastoDto> Gastos,
+    IReadOnlyList<string> AccionesDisponibles);
 
 public record LegalizacionHistorialDto(
     Guid Id,
@@ -135,7 +136,8 @@ public static class LegalizacionMapper
 
     public static LegalizacionDetalleDto ToDetalle(
         Legalizacion legalizacion,
-        IReadOnlyList<GastoSoporteDetalle>? soportes = null)
+        IReadOnlyList<GastoSoporteDetalle>? soportes = null,
+        IReadOnlyList<string>? accionesDisponibles = null)
     {
         var soportesPorGasto = (soportes ?? [])
             .GroupBy(s => s.GastoId)
@@ -158,7 +160,8 @@ public static class LegalizacionMapper
             legalizacion.Observaciones,
             legalizacion.Gastos
                 .Select(g => ToDto(g, soportesPorGasto.TryGetValue(g.Id, out var items) ? items : []))
-                .ToList());
+                .ToList(),
+            accionesDisponibles ?? []);
     }
 
     public static LegalizacionHistorialDto ToHistorialDto(LegalizacionHistorial entry) =>

@@ -70,6 +70,7 @@ export type LegalizacionDetalle = {
   totalDevolucion: number;
   observaciones: string | null;
   gastos: Gasto[];
+  accionesDisponibles?: WorkflowAction[];
 };
 
 export type CrearLegalizacionRequest = {

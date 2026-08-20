@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Application.Common.Models;
+using Viaticos.Domain.Core.Entities;
 
 namespace Viaticos.Application.Empleados.Commands;
 
@@ -46,21 +47,27 @@ public class ActualizarEmpleadoCommandHandler : IRequestHandler<ActualizarEmplea
         try
         {
             var rol = EmpleadoMapper.ParseRol(request.Rol);
-            empleado.ActualizarPerfil(request.Nombre, request.Apellido, rol, request.Departamento, request.JefeId);
+            var jefeId = EmpleadoJefeRules.ResolveJefeId(rol, request.JefeId);
+
+            Empleado? jefe = null;
+            if (jefeId.HasValue)
+            {
+                jefe = await _empleadoRepository.GetByIdAsync(jefeId.Value, cancellationToken);
+            }
+
+            var jefeValidation = EmpleadoJefeRules.ValidateJefeAssignment(
+                rol,
+                empleado.Id,
+                jefeId,
+                jefe);
+            if (!jefeValidation.IsSuccess)
+                return Result<EmpleadoDto>.Failure(jefeValidation.ErrorCode!, jefeValidation.Error!);
+
+            empleado.ActualizarPerfil(request.Nombre, request.Apellido, rol, request.Departamento, jefeId);
         }
         catch (ArgumentException ex)
         {
             return Result<EmpleadoDto>.Failure("VALIDATION_ERROR", ex.Message);
-        }
-
-        if (request.JefeId.HasValue)
-        {
-            if (request.JefeId.Value == empleado.Id)
-                return Result<EmpleadoDto>.Failure("VALIDATION_ERROR", "Un usuario no puede ser su propio jefe.");
-
-            var jefe = await _empleadoRepository.GetByIdAsync(request.JefeId.Value, cancellationToken);
-            if (jefe is null)
-                return Result<EmpleadoDto>.Failure("VALIDATION_ERROR", "El jefe indicado no existe o está inactivo.");
         }
 
         if (request.Activo)

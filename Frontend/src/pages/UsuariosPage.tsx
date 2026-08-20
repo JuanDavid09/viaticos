@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Topbar } from "@/components/layout/Topbar";
 import { ResetPasswordModal } from "@/components/admin/ResetPasswordModal";
+import { AsignarJefeModal } from "@/components/admin/AsignarJefeModal";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -45,6 +46,7 @@ export function UsuariosPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [resetTarget, setResetTarget] = useState<Empleado | null>(null);
   const [toggleTarget, setToggleTarget] = useState<Empleado | null>(null);
+  const [jefeTarget, setJefeTarget] = useState<Empleado | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -78,7 +80,7 @@ export function UsuariosPage() {
         rol: form.rol,
         passwordTemporal: form.passwordTemporal,
         departamento: form.departamento || undefined,
-        jefeId: form.jefeId || undefined,
+        jefeId: form.rol === "EMPLEADO" ? form.jefeId : undefined,
       });
       setForm(emptyForm);
       setSuccess("Usuario creado. Deberá cambiar la contraseña en su primer acceso.");
@@ -112,6 +114,31 @@ export function UsuariosPage() {
     }
   }
 
+  async function handleAsignarJefe(jefeId: string) {
+    if (!jefeTarget) return;
+
+    setIsSubmitting(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      await updateEmpleado(jefeTarget.id, {
+        nombre: jefeTarget.nombre,
+        apellido: jefeTarget.apellido,
+        rol: jefeTarget.rol,
+        departamento: jefeTarget.departamento ?? undefined,
+        jefeId,
+        activo: jefeTarget.activo,
+      });
+      setSuccess(`Jefe asignado a ${jefeTarget.nombreCompleto}.`);
+      setJefeTarget(null);
+      await loadData();
+    } catch (err) {
+      setError(getApiErrorMessage(err, "No se pudo asignar el jefe."));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   async function handleResetPassword(passwordTemporal: string) {
     if (!resetTarget) return;
 
@@ -131,8 +158,16 @@ export function UsuariosPage() {
   }
 
   const jefes = empleados.filter(
-    (item) => item.rol === "JEFE_APROBADOR" && item.activo,
+    (item) =>
+      item.activo &&
+      (item.rol === "JEFE_APROBADOR" || item.rol === "ADMIN"),
   );
+
+  function getJefeNombre(empleado: Empleado): string | null {
+    if (!empleado.jefeId) return null;
+    const jefe = empleados.find((item) => item.id === empleado.jefeId);
+    return jefe?.nombreCompleto ?? "Jefe no encontrado";
+  }
 
   return (
     <>
@@ -202,7 +237,14 @@ export function UsuariosPage() {
                 <select
                   id="usuario-rol"
                   value={form.rol}
-                  onChange={(e) => setForm({ ...form, rol: e.target.value as UserRole })}
+                  onChange={(e) => {
+                    const rol = e.target.value as UserRole;
+                    setForm({
+                      ...form,
+                      rol,
+                      jefeId: rol === "EMPLEADO" ? form.jefeId : "",
+                    });
+                  }}
                 >
                   {roleOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -211,21 +253,24 @@ export function UsuariosPage() {
                   ))}
                 </select>
               </label>
-              <label htmlFor="usuario-jefe">
-                Jefe (opcional)
-                <select
-                  id="usuario-jefe"
-                  value={form.jefeId}
-                  onChange={(e) => setForm({ ...form, jefeId: e.target.value })}
-                >
-                  <option value="">Sin jefe</option>
-                  {jefes.map((jefe) => (
-                    <option key={jefe.id} value={jefe.id}>
-                      {jefe.nombreCompleto}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {form.rol === "EMPLEADO" ? (
+                <label htmlFor="usuario-jefe">
+                  Jefe aprobador
+                  <select
+                    id="usuario-jefe"
+                    value={form.jefeId}
+                    onChange={(e) => setForm({ ...form, jefeId: e.target.value })}
+                    required
+                  >
+                    <option value="">Seleccione un jefe…</option>
+                    {jefes.map((jefe) => (
+                      <option key={jefe.id} value={jefe.id}>
+                        {jefe.nombreCompleto}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
               <label htmlFor="password-temporal">
                 Contraseña temporal
                 <PasswordInput
@@ -262,8 +307,24 @@ export function UsuariosPage() {
                       {!empleado.activo ? " · Inactivo" : ""}
                       {empleado.mustChangePassword ? " · Debe cambiar clave" : ""}
                     </span>
+                    {empleado.rol === "EMPLEADO" ? (
+                      <span
+                        className={`table-meta ${!empleado.jefeId ? "text-warning" : ""}`}
+                      >
+                        Jefe: {getJefeNombre(empleado) ?? "Sin asignar — no recibirá aprobaciones"}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="table-actions">
+                    {empleado.rol === "EMPLEADO" ? (
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        onClick={() => setJefeTarget(empleado)}
+                      >
+                        {empleado.jefeId ? "Cambiar jefe" : "Asignar jefe"}
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       className="btn btn-ghost"
@@ -292,6 +353,15 @@ export function UsuariosPage() {
         isSubmitting={isSubmitting}
         onClose={() => setResetTarget(null)}
         onSubmit={(password) => void handleResetPassword(password)}
+      />
+
+      <AsignarJefeModal
+        isOpen={jefeTarget !== null}
+        empleado={jefeTarget}
+        jefesDisponibles={jefes}
+        isSubmitting={isSubmitting}
+        onClose={() => setJefeTarget(null)}
+        onSubmit={(jefeId) => void handleAsignarJefe(jefeId)}
       />
 
       <ConfirmDialog

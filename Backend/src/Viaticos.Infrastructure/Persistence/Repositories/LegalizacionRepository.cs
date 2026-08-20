@@ -37,17 +37,22 @@ internal class LegalizacionRepository : ILegalizacionRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Legalizacion>> ListPendientesAprobacionByJefeAsync(
-        Guid jefeId,
+    public async Task<IReadOnlyList<Legalizacion>> ListPendientesAprobacionAsync(
+        Guid? jefeId,
         CancellationToken cancellationToken = default)
     {
-        return await (
+        var query =
             from legalizacion in _context.Legalizaciones
             join empleado in _context.Empleados on legalizacion.EmpleadoId equals empleado.Id
-            where empleado.JefeId == jefeId
-                  && legalizacion.Estado == Domain.Legalizaciones.Enums.EstadoLegalizacion.PendienteAprobacion
-            orderby legalizacion.SubmittedAt
-            select legalizacion)
+            where legalizacion.Estado == Domain.Legalizaciones.Enums.EstadoLegalizacion.PendienteAprobacion
+            select new { legalizacion, empleado };
+
+        if (jefeId.HasValue)
+            query = query.Where(x => x.empleado.JefeId == jefeId.Value);
+
+        return await query
+            .OrderBy(x => x.legalizacion.SubmittedAt)
+            .Select(x => x.legalizacion)
             .ToListAsync(cancellationToken);
     }
 
@@ -115,5 +120,56 @@ internal class LegalizacionRepository : ILegalizacionRepository
     public void Update(Legalizacion legalizacion)
     {
         _context.Legalizaciones.Update(legalizacion);
+    }
+
+    public async Task<Gasto> AddGastoAsync(
+        Legalizacion legalizacion,
+        Guid categoriaGastoId,
+        DateOnly fechaGasto,
+        string descripcion,
+        decimal monto,
+        Guid createdBy,
+        string? proveedor,
+        string? numeroDocumento,
+        CancellationToken cancellationToken = default)
+    {
+        var gasto = legalizacion.AgregarGasto(
+            categoriaGastoId,
+            fechaGasto,
+            descripcion,
+            monto,
+            createdBy,
+            proveedor,
+            numeroDocumento);
+
+        foreach (var entry in _context.ChangeTracker.Entries<Legalizacion>().Where(e => e.Entity.Id == legalizacion.Id))
+            entry.State = EntityState.Detached;
+
+        foreach (var entry in _context.ChangeTracker.Entries<Gasto>().Where(e => e.Entity.Id != gasto.Id))
+            entry.State = EntityState.Detached;
+
+        await _context.Gastos.AddAsync(gasto, cancellationToken);
+        return gasto;
+    }
+
+    public async Task PersistWorkflowTransitionAsync(
+        Legalizacion legalizacion,
+        CancellationToken cancellationToken = default)
+    {
+        foreach (var entry in _context.ChangeTracker.Entries().ToList())
+        {
+            entry.State = EntityState.Detached;
+        }
+
+        await _context.Legalizaciones
+            .Where(l => l.Id == legalizacion.Id)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(l => l.Estado, legalizacion.Estado)
+                    .SetProperty(l => l.UpdatedBy, legalizacion.UpdatedBy)
+                    .SetProperty(l => l.SubmittedAt, legalizacion.SubmittedAt)
+                    .SetProperty(l => l.ClosedAt, legalizacion.ClosedAt)
+                    .SetProperty(l => l.Observaciones, legalizacion.Observaciones),
+                cancellationToken);
     }
 }

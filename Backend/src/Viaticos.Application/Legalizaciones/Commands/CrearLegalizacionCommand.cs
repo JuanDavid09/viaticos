@@ -3,6 +3,7 @@ using MediatR;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Application.Common.Models;
 using Viaticos.Application.Legalizaciones.DTOs;
+using Viaticos.Application.Legalizaciones.Services;
 using Viaticos.Domain.Common;
 using Viaticos.Domain.Legalizaciones.Entities;
 
@@ -35,6 +36,7 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IEmpleadoRepository _empleadoRepository;
     private readonly ILegalizacionWorkflowService _workflow;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly INotificacionService _notificacionService;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
@@ -43,6 +45,7 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
         ILegalizacionRepository legalizacionRepository,
         IEmpleadoRepository empleadoRepository,
         ILegalizacionWorkflowService workflow,
+        ILegalizacionDetalleFactory detalleFactory,
         INotificacionService notificacionService,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork)
@@ -50,6 +53,7 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
         _legalizacionRepository = legalizacionRepository;
         _empleadoRepository = empleadoRepository;
         _workflow = workflow;
+        _detalleFactory = detalleFactory;
         _notificacionService = notificacionService;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
@@ -88,7 +92,8 @@ public class CrearLegalizacionCommandHandler : IRequestHandler<CrearLegalizacion
                 _currentUser.UserId,
                 cancellationToken);
 
-            return Result<LegalizacionDetalleDto>.Success(LegalizacionMapper.ToDetalle(persisted!));
+            return Result<LegalizacionDetalleDto>.Success(
+                await _detalleFactory.CreateAsync(persisted!, cancellationToken: cancellationToken));
         }
         catch (DomainException ex)
         {

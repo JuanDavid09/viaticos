@@ -40,8 +40,19 @@ public class CurrentUserService : ICurrentUserService
         if (User?.Identity?.IsAuthenticated != true)
             return false;
 
-        return User.IsInRole(NormalizeRole(role));
+        var normalized = NormalizeRole(role);
+
+        if (User.IsInRole(normalized))
+            return true;
+
+        return User.Claims.Any(claim =>
+            IsRoleClaimType(claim.Type)
+            && string.Equals(claim.Value, normalized, StringComparison.OrdinalIgnoreCase));
     }
+
+    private static bool IsRoleClaimType(string claimType) =>
+        string.Equals(claimType, JwtTokenService.RoleClaim, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(claimType, ClaimTypes.Role, StringComparison.OrdinalIgnoreCase);
 
     private static string NormalizeRole(string role) => role.ToUpperInvariant() switch
     {

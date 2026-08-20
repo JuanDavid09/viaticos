@@ -3,6 +3,7 @@ using MediatR;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Application.Common.Models;
 using Viaticos.Application.Documentos.DTOs;
+using Viaticos.Application.Legalizaciones.Services;
 using Viaticos.Domain.Common;
 using Viaticos.Domain.Documentos.Entities;
 
@@ -261,17 +262,20 @@ public class AplicarOcrAGastoCommandHandler : IRequestHandler<AplicarOcrAGastoCo
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IDocumentoRepository _documentoRepository;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
 
     public AplicarOcrAGastoCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork)
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
+        _detalleFactory = detalleFactory;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
     }
@@ -313,7 +317,7 @@ public class AplicarOcrAGastoCommandHandler : IRequestHandler<AplicarOcrAGastoCo
                 cancellationToken);
 
             return Result<Legalizaciones.DTOs.LegalizacionDetalleDto>.Success(
-                Legalizaciones.DTOs.LegalizacionMapper.ToDetalle(updated, soportes));
+                await _detalleFactory.CreateAsync(updated!, soportes, cancellationToken));
         }
         catch (DomainException ex)
         {

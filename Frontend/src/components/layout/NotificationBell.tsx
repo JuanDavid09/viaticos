@@ -5,12 +5,15 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingState } from "@/components/ui/LoadingState";
 import {
   formatNotificationTime,
-  getNotificationLink,
+  getNotificationNavigation,
+  type NotificationNavigation,
 } from "@/features/notificaciones/notificationUtils";
 import { useNotifications } from "@/features/notificaciones/useNotifications";
+import { useAuth } from "@/features/auth/AuthContext";
 
 export function NotificationBell() {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const panelRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const { items, noLeidas, isLoading, markLeida, markAllLeidas } = useNotifications();
@@ -38,15 +41,15 @@ export function NotificationBell() {
     };
   }, [isOpen]);
 
-  async function handleNotificationClick(id: string, link: string | null) {
+  async function handleNotificationClick(id: string, target: NotificationNavigation | null) {
     const item = items.find((entry) => entry.id === id);
     if (item && !item.leida) {
       await markLeida(id);
     }
 
     setIsOpen(false);
-    if (link) {
-      navigate(link);
+    if (target) {
+      navigate(target.pathname, { state: target.state });
     }
   }
 
@@ -119,14 +122,14 @@ export function NotificationBell() {
           {items.length > 0 ? (
             <div className="notification-list">
               {items.map((item) => {
-                const link = getNotificationLink(item);
+                const target = getNotificationNavigation(item, session?.rol);
 
                 return (
                   <button
                     key={item.id}
                     type="button"
                     className={`notification-item${item.leida ? "" : " is-unread"}`}
-                    onClick={() => void handleNotificationClick(item.id, link)}
+                    onClick={() => void handleNotificationClick(item.id, target)}
                   >
                     <div className="notification-item-header">
                       <strong>{item.titulo}</strong>
@@ -135,7 +138,7 @@ export function NotificationBell() {
                       </span>
                     </div>
                     <p className="notification-message">{item.mensaje}</p>
-                    {link ? (
+                    {target ? (
                       <span className="notification-link-hint">Ver legalización</span>
                     ) : null}
                   </button>

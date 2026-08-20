@@ -3,6 +3,7 @@ using MediatR;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Application.Common.Models;
 using Viaticos.Application.Legalizaciones.DTOs;
+using Viaticos.Application.Legalizaciones.Services;
 using Viaticos.Application.Notificaciones;
 using Viaticos.Domain.Common;
 using Viaticos.Domain.Legalizaciones.Entities;
@@ -38,6 +39,7 @@ internal static class WorkflowCommandHelper
         Guid legalizacionId,
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         IUnitOfWork unitOfWork,
         INotificacionService notificacionService,
         IEmpleadoRepository empleadoRepository,
@@ -54,8 +56,7 @@ internal static class WorkflowCommandHelper
         try
         {
             action(legalizacion);
-            legalizacionRepository.Update(legalizacion);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await legalizacionRepository.PersistWorkflowTransitionAsync(legalizacion, cancellationToken);
 
             var updated = await legalizacionRepository.GetByIdAsync(legalizacionId, cancellationToken);
             var empleado = await empleadoRepository.GetByIdAsync(updated!.EmpleadoId, cancellationToken);
@@ -75,7 +76,8 @@ internal static class WorkflowCommandHelper
                 updated.Gastos.Select(g => g.Id),
                 cancellationToken);
 
-            return Result<LegalizacionDetalleDto>.Success(LegalizacionMapper.ToDetalle(updated, soportes));
+            return Result<LegalizacionDetalleDto>.Success(
+                await detalleFactory.CreateAsync(updated, soportes, cancellationToken));
         }
         catch (DomainException ex)
         {
@@ -88,6 +90,7 @@ public class EnviarValidacionCommandHandler : IRequestHandler<EnviarValidacionCo
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IDocumentoRepository _documentoRepository;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
@@ -97,6 +100,7 @@ public class EnviarValidacionCommandHandler : IRequestHandler<EnviarValidacionCo
     public EnviarValidacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork,
@@ -105,6 +109,7 @@ public class EnviarValidacionCommandHandler : IRequestHandler<EnviarValidacionCo
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
+        _detalleFactory = detalleFactory;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
@@ -126,6 +131,7 @@ public class EnviarValidacionCommandHandler : IRequestHandler<EnviarValidacionCo
             request.LegalizacionId,
             _legalizacionRepository,
             _documentoRepository,
+            _detalleFactory,
             _unitOfWork,
             _notificacionService,
             _empleadoRepository,
@@ -141,6 +147,7 @@ public class EnviarAprobacionCommandHandler : IRequestHandler<EnviarAprobacionCo
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IDocumentoRepository _documentoRepository;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
@@ -150,6 +157,7 @@ public class EnviarAprobacionCommandHandler : IRequestHandler<EnviarAprobacionCo
     public EnviarAprobacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork,
@@ -158,6 +166,7 @@ public class EnviarAprobacionCommandHandler : IRequestHandler<EnviarAprobacionCo
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
+        _detalleFactory = detalleFactory;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
@@ -179,6 +188,7 @@ public class EnviarAprobacionCommandHandler : IRequestHandler<EnviarAprobacionCo
             request.LegalizacionId,
             _legalizacionRepository,
             _documentoRepository,
+            _detalleFactory,
             _unitOfWork,
             _notificacionService,
             _empleadoRepository,
@@ -194,6 +204,7 @@ public class AprobarLegalizacionCommandHandler : IRequestHandler<AprobarLegaliza
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IDocumentoRepository _documentoRepository;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
@@ -203,6 +214,7 @@ public class AprobarLegalizacionCommandHandler : IRequestHandler<AprobarLegaliza
     public AprobarLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork,
@@ -211,6 +223,7 @@ public class AprobarLegalizacionCommandHandler : IRequestHandler<AprobarLegaliza
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
+        _detalleFactory = detalleFactory;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
@@ -235,6 +248,7 @@ public class AprobarLegalizacionCommandHandler : IRequestHandler<AprobarLegaliza
             request.LegalizacionId,
             _legalizacionRepository,
             _documentoRepository,
+            _detalleFactory,
             _unitOfWork,
             _notificacionService,
             _empleadoRepository,
@@ -250,6 +264,7 @@ public class RechazarLegalizacionCommandHandler : IRequestHandler<RechazarLegali
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IDocumentoRepository _documentoRepository;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
@@ -259,6 +274,7 @@ public class RechazarLegalizacionCommandHandler : IRequestHandler<RechazarLegali
     public RechazarLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork,
@@ -267,6 +283,7 @@ public class RechazarLegalizacionCommandHandler : IRequestHandler<RechazarLegali
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
+        _detalleFactory = detalleFactory;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
@@ -291,6 +308,7 @@ public class RechazarLegalizacionCommandHandler : IRequestHandler<RechazarLegali
             request.LegalizacionId,
             _legalizacionRepository,
             _documentoRepository,
+            _detalleFactory,
             _unitOfWork,
             _notificacionService,
             _empleadoRepository,
@@ -306,6 +324,7 @@ public class ReabrirLegalizacionCommandHandler : IRequestHandler<ReabrirLegaliza
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IDocumentoRepository _documentoRepository;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
@@ -315,6 +334,7 @@ public class ReabrirLegalizacionCommandHandler : IRequestHandler<ReabrirLegaliza
     public ReabrirLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork,
@@ -323,6 +343,7 @@ public class ReabrirLegalizacionCommandHandler : IRequestHandler<ReabrirLegaliza
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
+        _detalleFactory = detalleFactory;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
@@ -344,6 +365,7 @@ public class ReabrirLegalizacionCommandHandler : IRequestHandler<ReabrirLegaliza
             request.LegalizacionId,
             _legalizacionRepository,
             _documentoRepository,
+            _detalleFactory,
             _unitOfWork,
             _notificacionService,
             _empleadoRepository,
@@ -359,6 +381,7 @@ public class EnviarNominaCommandHandler : IRequestHandler<EnviarNominaCommand, R
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IDocumentoRepository _documentoRepository;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
@@ -368,6 +391,7 @@ public class EnviarNominaCommandHandler : IRequestHandler<EnviarNominaCommand, R
     public EnviarNominaCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork,
@@ -376,6 +400,7 @@ public class EnviarNominaCommandHandler : IRequestHandler<EnviarNominaCommand, R
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
+        _detalleFactory = detalleFactory;
         _workflow = workflow;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
@@ -397,6 +422,7 @@ public class EnviarNominaCommandHandler : IRequestHandler<EnviarNominaCommand, R
             request.LegalizacionId,
             _legalizacionRepository,
             _documentoRepository,
+            _detalleFactory,
             _unitOfWork,
             _notificacionService,
             _empleadoRepository,
@@ -412,6 +438,7 @@ public class CerrarLegalizacionCommandHandler : IRequestHandler<CerrarLegalizaci
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IDocumentoRepository _documentoRepository;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
     private readonly INotificacionService _notificacionService;
@@ -420,6 +447,7 @@ public class CerrarLegalizacionCommandHandler : IRequestHandler<CerrarLegalizaci
     public CerrarLegalizacionCommandHandler(
         ILegalizacionRepository legalizacionRepository,
         IDocumentoRepository documentoRepository,
+        ILegalizacionDetalleFactory detalleFactory,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork,
         INotificacionService notificacionService,
@@ -427,6 +455,7 @@ public class CerrarLegalizacionCommandHandler : IRequestHandler<CerrarLegalizaci
     {
         _legalizacionRepository = legalizacionRepository;
         _documentoRepository = documentoRepository;
+        _detalleFactory = detalleFactory;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
         _notificacionService = notificacionService;
@@ -442,6 +471,7 @@ public class CerrarLegalizacionCommandHandler : IRequestHandler<CerrarLegalizaci
             request.LegalizacionId,
             _legalizacionRepository,
             _documentoRepository,
+            _detalleFactory,
             _unitOfWork,
             _notificacionService,
             _empleadoRepository,

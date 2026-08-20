@@ -73,7 +73,7 @@ export function getAvailableWorkflowActions(
   const { estado } = legalizacion;
   const actions: WorkflowAction[] = [];
 
-  if (isOwner || rol === "ADMIN") {
+  if (isOwner) {
     if (estado === "Borrador" && legalizacion.gastos.length > 0) {
       actions.push("enviar-validacion");
     }
@@ -88,7 +88,7 @@ export function getAvailableWorkflowActions(
     }
   }
 
-  if ((rol === "JEFE_APROBADOR" || rol === "ADMIN") && estado === "PendienteAprobacion") {
+  if ((rol === "JEFE_APROBADOR" || rol === "ADMIN") && estado === "PendienteAprobacion" && !isOwner) {
     actions.push("aprobar", "rechazar");
   }
 
@@ -97,6 +97,10 @@ export function getAvailableWorkflowActions(
   }
 
   return actions;
+}
+
+export function isWorkflowAction(value: string): value is WorkflowAction {
+  return value in actionLabels;
 }
 
 export function parseEstadoLegalizacion(value: string | null): EstadoLegalizacion | null {

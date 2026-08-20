@@ -1683,6 +1683,10 @@ button {
   color: var(--color-danger);
 }
 
+.text-warning {
+  color: var(--color-warning-ink);
+}
+
 .avatar {
   width: 32px;
   height: 32px;
@@ -2073,9 +2077,105 @@ textarea:focus-visible,
   .page-toolbar,
   .detail-header,
   .workflow-actions,
-  .error-banner,
+  .error-banner {
+    min-width: 0;
+  }
+
   .report-table {
     min-width: 520px;
+  }
+
+  .page-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detail-header {
+    flex-direction: column;
+  }
+
+  .workflow-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .legalizacion-list .table-row-link {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .legalizacion-list .table-row-link:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  .legalizacion-list .table-row {
+    border-bottom: 0;
+    padding: 0;
+  }
+
+  .legalizacion-list .row-summary {
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .legalizacion-detail-page .totals-grid {
+    width: 100%;
+  }
+
+  .legalizacion-detail-page .gasto-item .table-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .legalizacion-detail-page .gasto-item .table-row > strong:last-child {
+    align-self: flex-start;
+  }
+
+  .legalizaciones-page .page-lead {
+    margin-bottom: 0;
+  }
+
+  .legalizacion-list {
+    gap: 14px;
+  }
+
+  .legalizacion-detail-page .detail-header .row-title h3 {
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+
+  .legalizacion-detail-page .gasto-soporte-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .legalizacion-detail-page .stack-form .btn,
+  .legalizacion-nueva-page .stack-form .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .legalizacion-detail-page .workflow-actions-buttons {
+    flex-direction: column;
+  }
+
+  .legalizacion-detail-page .ocr-actions .btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .legalizacion-detail-page .admin-layout {
+    gap: 16px;
   }
 
   .report-export-actions {
@@ -2412,6 +2512,33 @@ textarea:focus-visible,
   .error-retry {
     width: 100%;
     justify-content: center;
+  }
+
+  .legalizacion-detail-page .totals-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
+  }
+
+  .legalizacion-detail-page .timeline-item .row-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .legalizacion-detail-page .timeline-arrow {
+    display: none;
+  }
+
+  .legalizacion-detail-page .gasto-item .table-row > strong:last-child {
+    font-size: 1.1rem;
+  }
+
+  .legalizacion-list .row-summary {
+    font-size: 1rem;
+  }
+
+  .legalizacion-detail-page .gasto-soporte-section {
+    padding: 12px;
   }
 }
 

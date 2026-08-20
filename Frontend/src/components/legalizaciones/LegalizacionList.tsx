@@ -42,7 +42,7 @@ export function LegalizacionList({
   }
 
   return (
-    <div className="table-list">
+    <div className="table-list legalizacion-list">
       {items.map((item) => (
         <Link
           key={item.id}

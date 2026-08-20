@@ -2,6 +2,7 @@ using MediatR;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Application.Common.Models;
 using Viaticos.Application.Legalizaciones.DTOs;
+using Viaticos.Application.Legalizaciones.Services;
 
 namespace Viaticos.Application.Legalizaciones.Queries;
 
@@ -28,8 +29,10 @@ public class ListarPendientesAprobacionQueryHandler
         if (!_currentUser.IsInRole("JefeAprobador") && !_currentUser.IsInRole("Admin"))
             return Result<IReadOnlyList<LegalizacionResumenDto>>.Failure("FORBIDDEN", "Solo jefes pueden ver esta bandeja.");
 
-        var legalizaciones = await _legalizacionRepository.ListPendientesAprobacionByJefeAsync(
-            _currentUser.UserId,
+        var jefeFilter = _currentUser.IsInRole("Admin") ? (Guid?)null : _currentUser.UserId;
+
+        var legalizaciones = await _legalizacionRepository.ListPendientesAprobacionAsync(
+            jefeFilter,
             cancellationToken);
 
         var items = legalizaciones
@@ -78,13 +81,16 @@ public record ObtenerHistorialQuery(Guid LegalizacionId) : IRequest<Result<IRead
 public class ObtenerHistorialQueryHandler : IRequestHandler<ObtenerHistorialQuery, Result<IReadOnlyList<LegalizacionHistorialDto>>>
 {
     private readonly ILegalizacionRepository _legalizacionRepository;
+    private readonly ILegalizacionWorkflowService _workflow;
     private readonly ICurrentUserService _currentUser;
 
     public ObtenerHistorialQueryHandler(
         ILegalizacionRepository legalizacionRepository,
+        ILegalizacionWorkflowService workflow,
         ICurrentUserService currentUser)
     {
         _legalizacionRepository = legalizacionRepository;
+        _workflow = workflow;
         _currentUser = currentUser;
     }
 
@@ -96,13 +102,9 @@ public class ObtenerHistorialQueryHandler : IRequestHandler<ObtenerHistorialQuer
         if (legalizacion is null)
             return Result<IReadOnlyList<LegalizacionHistorialDto>>.Failure("NOT_FOUND", "Legalización no encontrada.");
 
-        if (legalizacion.EmpleadoId != _currentUser.UserId
-            && !_currentUser.IsInRole("Admin")
-            && !_currentUser.IsInRole("JefeAprobador")
-            && !_currentUser.IsInRole("Nomina"))
-        {
-            return Result<IReadOnlyList<LegalizacionHistorialDto>>.Failure("FORBIDDEN", "No tiene permiso para ver el historial.");
-        }
+        var viewAuth = await _workflow.CanViewLegalizacionAsync(legalizacion, _currentUser, cancellationToken);
+        if (!viewAuth.IsSuccess)
+            return Result<IReadOnlyList<LegalizacionHistorialDto>>.Failure(viewAuth.ErrorCode!, viewAuth.Error!);
 
         var historial = await _legalizacionRepository.GetHistorialAsync(request.LegalizacionId, cancellationToken);
         var items = historial

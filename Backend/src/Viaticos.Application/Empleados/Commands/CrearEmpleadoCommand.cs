@@ -65,12 +65,19 @@ public class CrearEmpleadoCommandHandler : IRequestHandler<CrearEmpleadoCommand,
             return Result<EmpleadoDto>.Failure("VALIDATION_ERROR", ex.Message);
         }
 
+        Empleado? jefe = null;
         if (request.JefeId.HasValue)
         {
-            var jefe = await _empleadoRepository.GetByIdAsync(request.JefeId.Value, cancellationToken);
-            if (jefe is null)
-                return Result<EmpleadoDto>.Failure("VALIDATION_ERROR", "El jefe indicado no existe o está inactivo.");
+            jefe = await _empleadoRepository.GetByIdAsync(request.JefeId.Value, cancellationToken);
         }
+
+        var jefeValidation = EmpleadoJefeRules.ValidateJefeAssignment(
+            rol,
+            Guid.Empty,
+            EmpleadoJefeRules.ResolveJefeId(rol, request.JefeId),
+            jefe);
+        if (!jefeValidation.IsSuccess)
+            return Result<EmpleadoDto>.Failure(jefeValidation.ErrorCode!, jefeValidation.Error!);
 
         var passwordHash = _passwordHasher.HashPassword(request.PasswordTemporal);
         var empleado = Empleado.Crear(
@@ -82,7 +89,7 @@ public class CrearEmpleadoCommandHandler : IRequestHandler<CrearEmpleadoCommand,
             passwordHash,
             mustChangePassword: true,
             request.Departamento,
-            request.JefeId);
+            EmpleadoJefeRules.ResolveJefeId(rol, request.JefeId));
 
         await _empleadoRepository.AddAsync(empleado, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

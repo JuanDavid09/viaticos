@@ -3,6 +3,7 @@ using MediatR;
 using Viaticos.Application.Common.Interfaces;
 using Viaticos.Application.Common.Models;
 using Viaticos.Application.Legalizaciones.DTOs;
+using Viaticos.Application.Legalizaciones.Services;
 using Viaticos.Domain.Common;
 
 namespace Viaticos.Application.Legalizaciones.Commands;
@@ -34,6 +35,7 @@ public class AgregarGastoCommandHandler : IRequestHandler<AgregarGastoCommand, R
     private readonly ILegalizacionRepository _legalizacionRepository;
     private readonly IEmpleadoRepository _empleadoRepository;
     private readonly INotificacionService _notificacionService;
+    private readonly ILegalizacionDetalleFactory _detalleFactory;
     private readonly ICurrentUserService _currentUser;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -41,12 +43,14 @@ public class AgregarGastoCommandHandler : IRequestHandler<AgregarGastoCommand, R
         ILegalizacionRepository legalizacionRepository,
         IEmpleadoRepository empleadoRepository,
         INotificacionService notificacionService,
+        ILegalizacionDetalleFactory detalleFactory,
         ICurrentUserService currentUser,
         IUnitOfWork unitOfWork)
     {
         _legalizacionRepository = legalizacionRepository;
         _empleadoRepository = empleadoRepository;
         _notificacionService = notificacionService;
+        _detalleFactory = detalleFactory;
         _currentUser = currentUser;
         _unitOfWork = unitOfWork;
     }
@@ -62,33 +66,38 @@ public class AgregarGastoCommandHandler : IRequestHandler<AgregarGastoCommand, R
 
         try
         {
-            legalizacion.AgregarGasto(
+            await _legalizacionRepository.AddGastoAsync(
+                legalizacion,
                 request.CategoriaGastoId,
                 request.FechaGasto,
                 request.Descripcion,
                 request.Monto,
                 _currentUser.UserId,
                 request.Proveedor,
-                request.NumeroDocumento);
+                request.NumeroDocumento,
+                cancellationToken);
 
-            _legalizacionRepository.Update(legalizacion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var updated = await _legalizacionRepository.GetByIdAsync(request.LegalizacionId, cancellationToken);
+            if (updated is null)
+                return Result<LegalizacionDetalleDto>.Failure("NOT_FOUND", "Legalización no encontrada.");
+
             var empleado = await _empleadoRepository.GetByIdAsync(_currentUser.UserId, cancellationToken);
             var empleadoNombre = empleado is null
                 ? "Empleado"
                 : $"{empleado.Nombre} {empleado.Apellido}".Trim();
 
             await _notificacionService.NotificarGastoAgregadoAsync(
-                updated!,
+                updated,
                 empleadoNombre,
                 request.Descripcion,
                 request.Monto,
                 _currentUser.UserId,
                 cancellationToken);
 
-            return Result<LegalizacionDetalleDto>.Success(LegalizacionMapper.ToDetalle(updated!));
+            return Result<LegalizacionDetalleDto>.Success(
+                await _detalleFactory.CreateAsync(updated, cancellationToken: cancellationToken));
         }
         catch (DomainException ex)
         {
